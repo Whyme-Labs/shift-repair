@@ -1,0 +1,19 @@
+{
+  "verification_date": "2026-11-06",
+  "hermes_release": "v0.22.7",
+  "hermes_commit": "b200f5bc60e31588ba2cb60e288029c4a54ba5fa",
+  "python": "3.14.9",
+  "ortools": "9.15.6755",
+  "pydantic": "2.14.1",
+  "fastapi": "0.133.1",
+  "real_plugin_manager": true,
+  "registered_tools": 10,
+  "actual_gateway_router_mount": true,
+  "tool_to_rest_shared_board": true,
+  "rest_to_tool_shared_board": true,
+  "solver_status": "OPTIMAL",
+  "independent_violations": 0,
+  "profile_home": "temporary and removed after run",
+  "desktop_renderer_tested": false,
+  "qualification": "Runtime and ASGI integration smoke, not an Electron Desktop end-to-end test."
+}

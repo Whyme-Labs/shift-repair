@@ -1,0 +1,268 @@
+{
+  "algorithm": "sha256",
+  "scope": "Runtime and build inputs checked in the clean admission snapshot",
+  "all_match": false,
+  "files": [
+    {
+      "path": "__init__.py",
+      "sha256": "15766340f2ae6cbf2cd617fe2b481fc4448361fbe29879a79c9a8b95ed3586ad",
+      "matches_current_working_tree": true,
+      "current_sha256": "15766340f2ae6cbf2cd617fe2b481fc4448361fbe29879a79c9a8b95ed3586ad",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "dashboard/manifest.json",
+      "sha256": "0578c18d5f9399cae3dab826d10d59f33049b42c3bb55eef0321f10ce1fe8476",
+      "matches_current_working_tree": true,
+      "current_sha256": "0578c18d5f9399cae3dab826d10d59f33049b42c3bb55eef0321f10ce1fe8476",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "dashboard/plugin_api.py",
+      "sha256": "f2f00851127ee20415afa70b7b4c8eee20e4466b5500b564676052d42ac3c8ce",
+      "matches_current_working_tree": true,
+      "current_sha256": "f2f00851127ee20415afa70b7b4c8eee20e4466b5500b564676052d42ac3c8ce",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "desktop/build.mjs",
+      "sha256": "8d381c78c9de82c08f7e0b22b96c8995339d1598c75610d38778df258d5f3b37",
+      "matches_current_working_tree": true,
+      "current_sha256": "8d381c78c9de82c08f7e0b22b96c8995339d1598c75610d38778df258d5f3b37",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "desktop/package-lock.json",
+      "sha256": "aaef8f248310dca6b495fd8a337690db0273abd7a5f103d0c90589929e8007fa",
+      "matches_current_working_tree": true,
+      "current_sha256": "aaef8f248310dca6b495fd8a337690db0273abd7a5f103d0c90589929e8007fa",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "desktop/package.json",
+      "sha256": "cd542d1994c722fda32c6dd1515b7533fca79486ff12e7a9a2b78b1d1ab3e1d6",
+      "matches_current_working_tree": true,
+      "current_sha256": "cd542d1994c722fda32c6dd1515b7533fca79486ff12e7a9a2b78b1d1ab3e1d6",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "desktop/plugin.js",
+      "sha256": "6fff3749a9a877925303ffdb819185fbceb3febd2e66334b3e64aa2533e828cb",
+      "matches_current_working_tree": true,
+      "current_sha256": "6fff3749a9a877925303ffdb819185fbceb3febd2e66334b3e64aa2533e828cb",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "desktop/src/App.tsx",
+      "sha256": "793f92d4faf960b076cfe4347e20f35b847a5087d832f18862b1325d51e280be",
+      "matches_current_working_tree": true,
+      "current_sha256": "793f92d4faf960b076cfe4347e20f35b847a5087d832f18862b1325d51e280be",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "desktop/src/Availability.tsx",
+      "sha256": "3fcecfdb155b4a1a3dffeb7530ba54bd5a154aff8aa3cb38c1929557acfd38dc",
+      "matches_current_working_tree": true,
+      "current_sha256": "3fcecfdb155b4a1a3dffeb7530ba54bd5a154aff8aa3cb38c1929557acfd38dc",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "desktop/src/Forms.tsx",
+      "sha256": "61a278618f0c46963fbd4dee01f72d85081898c13868dd6ae81f25a3c6b6c9bb",
+      "matches_current_working_tree": true,
+      "current_sha256": "61a278618f0c46963fbd4dee01f72d85081898c13868dd6ae81f25a3c6b6c9bb",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "desktop/src/Modal.tsx",
+      "sha256": "ad03405348be26d40fe8e1704fea4a44952d7d913398ab70e762769fe00fcaa7",
+      "matches_current_working_tree": true,
+      "current_sha256": "ad03405348be26d40fe8e1704fea4a44952d7d913398ab70e762769fe00fcaa7",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "desktop/src/RepairPanel.tsx",
+      "sha256": "79f2dea16f829b443073a007ff07c3f5f585aa49581ebdc0e1bf58af6431d5eb",
+      "matches_current_working_tree": true,
+      "current_sha256": "79f2dea16f829b443073a007ff07c3f5f585aa49581ebdc0e1bf58af6431d5eb",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "desktop/src/Schedule.tsx",
+      "sha256": "3286576b219dc50ace1a8d8606768b06348f2271f5ccefb20998577fd8b54ac7",
+      "matches_current_working_tree": true,
+      "current_sha256": "3286576b219dc50ace1a8d8606768b06348f2271f5ccefb20998577fd8b54ac7",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "desktop/src/api.ts",
+      "sha256": "337d5e1633589fdad136f4ea63ebc5464c53c444ad8d17d5c6f6f3fe1c3b7553",
+      "matches_current_working_tree": true,
+      "current_sha256": "337d5e1633589fdad136f4ea63ebc5464c53c444ad8d17d5c6f6f3fe1c3b7553",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "desktop/src/icons.tsx",
+      "sha256": "977cc7fba42ec500526a77902eaf3f6b96620c69fd6f6d8dec5d0f0a159bef71",
+      "matches_current_working_tree": true,
+      "current_sha256": "977cc7fba42ec500526a77902eaf3f6b96620c69fd6f6d8dec5d0f0a159bef71",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "desktop/src/model.ts",
+      "sha256": "cfeaae60c6ede17be9c9aeab8d12635fbe49dfed6d0d2d7dfca1c739fda54068",
+      "matches_current_working_tree": true,
+      "current_sha256": "cfeaae60c6ede17be9c9aeab8d12635fbe49dfed6d0d2d7dfca1c739fda54068",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "desktop/src/plugin.tsx",
+      "sha256": "fc85e7cc279400f9b178edd6924f15eec2d032671acd10fa17f669617b253b30",
+      "matches_current_working_tree": true,
+      "current_sha256": "fc85e7cc279400f9b178edd6924f15eec2d032671acd10fa17f669617b253b30",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "desktop/src/preview.tsx",
+      "sha256": "28aa25352765b61525a569abf2961be8266f0f9a6bfaffe2403b5edf873bbc6e",
+      "matches_current_working_tree": true,
+      "current_sha256": "28aa25352765b61525a569abf2961be8266f0f9a6bfaffe2403b5edf873bbc6e",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "desktop/src/sdk.d.ts",
+      "sha256": "c7d81870e967d0f224f8e66054410a4e1c6b86c3ae70dc06fdc0327bbf82d245",
+      "matches_current_working_tree": true,
+      "current_sha256": "c7d81870e967d0f224f8e66054410a4e1c6b86c3ae70dc06fdc0327bbf82d245",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "desktop/src/styles.css",
+      "sha256": "deca6db10937655995c442e66c235ace98f12ceb8ffd5da9483e7cb5b928bead",
+      "matches_current_working_tree": true,
+      "current_sha256": "deca6db10937655995c442e66c235ace98f12ceb8ffd5da9483e7cb5b928bead",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "desktop/src/types.ts",
+      "sha256": "b2573e5c87997dead8b92288acf6fa1a8c966ba76e12f4649fa11abef8bf4dcb",
+      "matches_current_working_tree": true,
+      "current_sha256": "b2573e5c87997dead8b92288acf6fa1a8c966ba76e12f4649fa11abef8bf4dcb",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "desktop/src/useBoard.ts",
+      "sha256": "fe2c3af55de45f3defe3626aaf4cca2f43a978e43d1a6a6c36906c9325ed5b2d",
+      "matches_current_working_tree": true,
+      "current_sha256": "fe2c3af55de45f3defe3626aaf4cca2f43a978e43d1a6a6c36906c9325ed5b2d",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "plugin.yaml",
+      "sha256": "429c78421d66e478b124e6587a932d480d87b59d24cb10754c86ebf57acf1ed2",
+      "matches_current_working_tree": true,
+      "current_sha256": "429c78421d66e478b124e6587a932d480d87b59d24cb10754c86ebf57acf1ed2",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "preview/app.js",
+      "sha256": "719bf127235540096b37dd5ac8840297421277cb4325345a29c9530238f11e73",
+      "matches_current_working_tree": true,
+      "current_sha256": "719bf127235540096b37dd5ac8840297421277cb4325345a29c9530238f11e73",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "preview/index.html",
+      "sha256": "4d5544fb76979a4d60e37f64ca7b6db80974d0a05f40dcd7252795422b4e0691",
+      "matches_current_working_tree": true,
+      "current_sha256": "4d5544fb76979a4d60e37f64ca7b6db80974d0a05f40dcd7252795422b4e0691",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "pyproject.toml",
+      "sha256": "a013a73c8588324451a1aea6a2d187491160b579b19e2e3ddc6b705e078bf5aa",
+      "matches_current_working_tree": true,
+      "current_sha256": "a013a73c8588324451a1aea6a2d187491160b579b19e2e3ddc6b705e078bf5aa",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "shiftrepair/__init__.py",
+      "sha256": "677f67fcfdbc3b9dbda48688b8545e7cf96cb5c3f5d9c9bc1e12fc96dab57117",
+      "matches_current_working_tree": true,
+      "current_sha256": "677f67fcfdbc3b9dbda48688b8545e7cf96cb5c3f5d9c9bc1e12fc96dab57117",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "shiftrepair/api.py",
+      "sha256": "4c3d90c93beb6401e9d30b3a4b4dca5386e983bdd636743f0b468304b94f2950",
+      "matches_current_working_tree": false,
+      "current_sha256": "b07749020deeb657cff1b3cb55ec9ac213f988abc6ce81af524e6abedd9da16d",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "shiftrepair/checker.py",
+      "sha256": "d1b5fde7f81c1ae781807589df02282bc13cde703b58c59b0c2cef40827324b7",
+      "matches_current_working_tree": true,
+      "current_sha256": "d1b5fde7f81c1ae781807589df02282bc13cde703b58c59b0c2cef40827324b7",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "shiftrepair/cli.py",
+      "sha256": "d09db5a5fd098d645cfc4ab207dcdd00bc0f57c76a17b5ab15c5e4c022beee9f",
+      "matches_current_working_tree": true,
+      "current_sha256": "d09db5a5fd098d645cfc4ab207dcdd00bc0f57c76a17b5ab15c5e4c022beee9f",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "shiftrepair/csv_io.py",
+      "sha256": "7a7bc6aa6058bcf671bca5dfa14523aba809426582e99e2e971560c6d2ef98b0",
+      "matches_current_working_tree": false,
+      "current_sha256": "c05e8b0377f2bdd5618028d592076a97f6e4a14db73975b87c2bb282c1067171",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "shiftrepair/errors.py",
+      "sha256": "7f5293807b1f14717ecbf2cdca37ff5e49343021029af77bcb1d6ba11d068e7f",
+      "matches_current_working_tree": false,
+      "current_sha256": "e6f9afe7e7f4772ca6abbe07ee36170fdf8a9d4780dbfd20ba732c01a68ac27e",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "shiftrepair/examples.py",
+      "sha256": "40dc65b747efc3e3ee5a5c8fd0f64a27eec4377efd4ecaa275d8f6681923415c",
+      "matches_current_working_tree": true,
+      "current_sha256": "40dc65b747efc3e3ee5a5c8fd0f64a27eec4377efd4ecaa275d8f6681923415c",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "shiftrepair/models.py",
+      "sha256": "1fb18294e87da1a74782968505e13b1677fa724ade50a2f5b54f5f58a95fb228",
+      "matches_current_working_tree": true,
+      "current_sha256": "1fb18294e87da1a74782968505e13b1677fa724ade50a2f5b54f5f58a95fb228",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "shiftrepair/service.py",
+      "sha256": "8e0974086d61cd739b05c1bd1ce9e7dd0a010d416df02cddbd9fd60489d8adcf",
+      "matches_current_working_tree": true,
+      "current_sha256": "8e0974086d61cd739b05c1bd1ce9e7dd0a010d416df02cddbd9fd60489d8adcf",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "shiftrepair/solver.py",
+      "sha256": "fc1425ed9035c680206853b51cc34077001b940d2d12d105b41c830718f9e27e",
+      "matches_current_working_tree": true,
+      "current_sha256": "fc1425ed9035c680206853b51cc34077001b940d2d12d105b41c830718f9e27e",
+      "matches_after_trailing_newline_normalization": true
+    },
+    {
+      "path": "shiftrepair/storage.py",
+      "sha256": "0bbb3b44f117236257103da266d4f4cd505fe653f97fcf2b9945d3a50a34b8cb",
+      "matches_current_working_tree": true,
+      "current_sha256": "0bbb3b44f117236257103da266d4f4cd505fe653f97fcf2b9945d3a50a34b8cb",
+      "matches_after_trailing_newline_normalization": true
+    }
+  ],
+  "all_match_after_trailing_newline_normalization": true,
+  "note": "After admission, final file cleanup removed one empty line at EOF in api.py, csv_io.py and errors.py. All other runtime/build files match byte-for-byte; no non-newline content changed."
+}

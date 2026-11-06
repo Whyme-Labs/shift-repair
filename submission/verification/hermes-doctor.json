@@ -1,0 +1,9 @@
+{
+  "verification_date": "2026-11-06",
+  "hermes_release": "v0.22.7",
+  "hermes_commit": "b200f5bc60e31588ba2cb60e288029c4a54ba5fa",
+  "python": "3.14.9",
+  "target": "clean working-tree snapshot, not a published release commit",
+  "exit_code": 0,
+  "output": "Plugin Doctor: \n/workspace/scratch/b07e23cd47f9/hermes-build-runtime/shiftrepair-admission-candi\ndate\n  manifest: shiftrepair 0.1.0 (standalone)\n  OK: runtime discovery, manifest parsing, import, and registration passed\n  registrations: 10 tool(s), 0 hook(s)\n"
+}

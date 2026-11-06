@@ -1,0 +1,346 @@
+{
+  "name": "Cedar team · demo week",
+  "week_start": "2026-11-09",
+  "people": [
+    {
+      "id": "asha",
+      "name": "Asha",
+      "roles": [
+        "lead"
+      ],
+      "available_days": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-14",
+        "2026-11-15"
+      ],
+      "max_assignments": 4
+    },
+    {
+      "id": "ben",
+      "name": "Ben",
+      "roles": [
+        "lead"
+      ],
+      "available_days": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-14",
+        "2026-11-15"
+      ],
+      "max_assignments": 4
+    },
+    {
+      "id": "chen",
+      "name": "Chen",
+      "roles": [
+        "lead"
+      ],
+      "available_days": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-14",
+        "2026-11-15"
+      ],
+      "max_assignments": 3
+    },
+    {
+      "id": "devi",
+      "name": "Devi",
+      "roles": [
+        "lead"
+      ],
+      "available_days": [
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-14",
+        "2026-11-15"
+      ],
+      "max_assignments": 4
+    },
+    {
+      "id": "eli",
+      "name": "Eli",
+      "roles": [
+        "floor"
+      ],
+      "available_days": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-14",
+        "2026-11-15"
+      ],
+      "max_assignments": 4
+    },
+    {
+      "id": "farah",
+      "name": "Farah",
+      "roles": [
+        "floor"
+      ],
+      "available_days": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-14",
+        "2026-11-15"
+      ],
+      "max_assignments": 4
+    },
+    {
+      "id": "gopal",
+      "name": "Gopal",
+      "roles": [
+        "floor"
+      ],
+      "available_days": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-14",
+        "2026-11-15"
+      ],
+      "max_assignments": 4
+    },
+    {
+      "id": "hana",
+      "name": "Hana",
+      "roles": [
+        "floor"
+      ],
+      "available_days": [
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11",
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-14",
+        "2026-11-15"
+      ],
+      "max_assignments": 4
+    }
+  ],
+  "slots": [
+    {
+      "id": "2026-11-09:AM:lead",
+      "date": "2026-11-09",
+      "shift": "AM",
+      "role": "lead"
+    },
+    {
+      "id": "2026-11-09:AM:floor",
+      "date": "2026-11-09",
+      "shift": "AM",
+      "role": "floor"
+    },
+    {
+      "id": "2026-11-09:PM:lead",
+      "date": "2026-11-09",
+      "shift": "PM",
+      "role": "lead"
+    },
+    {
+      "id": "2026-11-09:PM:floor",
+      "date": "2026-11-09",
+      "shift": "PM",
+      "role": "floor"
+    },
+    {
+      "id": "2026-11-10:AM:lead",
+      "date": "2026-11-10",
+      "shift": "AM",
+      "role": "lead"
+    },
+    {
+      "id": "2026-11-10:AM:floor",
+      "date": "2026-11-10",
+      "shift": "AM",
+      "role": "floor"
+    },
+    {
+      "id": "2026-11-10:PM:lead",
+      "date": "2026-11-10",
+      "shift": "PM",
+      "role": "lead"
+    },
+    {
+      "id": "2026-11-10:PM:floor",
+      "date": "2026-11-10",
+      "shift": "PM",
+      "role": "floor"
+    },
+    {
+      "id": "2026-11-11:AM:lead",
+      "date": "2026-11-11",
+      "shift": "AM",
+      "role": "lead"
+    },
+    {
+      "id": "2026-11-11:AM:floor",
+      "date": "2026-11-11",
+      "shift": "AM",
+      "role": "floor"
+    },
+    {
+      "id": "2026-11-11:PM:lead",
+      "date": "2026-11-11",
+      "shift": "PM",
+      "role": "lead"
+    },
+    {
+      "id": "2026-11-11:PM:floor",
+      "date": "2026-11-11",
+      "shift": "PM",
+      "role": "floor"
+    },
+    {
+      "id": "2026-11-12:AM:lead",
+      "date": "2026-11-12",
+      "shift": "AM",
+      "role": "lead"
+    },
+    {
+      "id": "2026-11-12:AM:floor",
+      "date": "2026-11-12",
+      "shift": "AM",
+      "role": "floor"
+    },
+    {
+      "id": "2026-11-12:PM:lead",
+      "date": "2026-11-12",
+      "shift": "PM",
+      "role": "lead"
+    },
+    {
+      "id": "2026-11-12:PM:floor",
+      "date": "2026-11-12",
+      "shift": "PM",
+      "role": "floor"
+    },
+    {
+      "id": "2026-11-13:AM:lead",
+      "date": "2026-11-13",
+      "shift": "AM",
+      "role": "lead"
+    },
+    {
+      "id": "2026-11-13:AM:floor",
+      "date": "2026-11-13",
+      "shift": "AM",
+      "role": "floor"
+    },
+    {
+      "id": "2026-11-13:PM:lead",
+      "date": "2026-11-13",
+      "shift": "PM",
+      "role": "lead"
+    },
+    {
+      "id": "2026-11-13:PM:floor",
+      "date": "2026-11-13",
+      "shift": "PM",
+      "role": "floor"
+    },
+    {
+      "id": "2026-11-14:AM:lead",
+      "date": "2026-11-14",
+      "shift": "AM",
+      "role": "lead"
+    },
+    {
+      "id": "2026-11-14:AM:floor",
+      "date": "2026-11-14",
+      "shift": "AM",
+      "role": "floor"
+    },
+    {
+      "id": "2026-11-14:PM:lead",
+      "date": "2026-11-14",
+      "shift": "PM",
+      "role": "lead"
+    },
+    {
+      "id": "2026-11-14:PM:floor",
+      "date": "2026-11-14",
+      "shift": "PM",
+      "role": "floor"
+    },
+    {
+      "id": "2026-11-15:AM:lead",
+      "date": "2026-11-15",
+      "shift": "AM",
+      "role": "lead"
+    },
+    {
+      "id": "2026-11-15:AM:floor",
+      "date": "2026-11-15",
+      "shift": "AM",
+      "role": "floor"
+    },
+    {
+      "id": "2026-11-15:PM:lead",
+      "date": "2026-11-15",
+      "shift": "PM",
+      "role": "lead"
+    },
+    {
+      "id": "2026-11-15:PM:floor",
+      "date": "2026-11-15",
+      "shift": "PM",
+      "role": "floor"
+    }
+  ],
+  "baseline": {
+    "2026-11-09:AM:lead": "asha",
+    "2026-11-09:AM:floor": "eli",
+    "2026-11-09:PM:lead": "ben",
+    "2026-11-09:PM:floor": "farah",
+    "2026-11-10:AM:lead": "chen",
+    "2026-11-10:AM:floor": "gopal",
+    "2026-11-10:PM:lead": "devi",
+    "2026-11-10:PM:floor": "hana",
+    "2026-11-11:AM:lead": "asha",
+    "2026-11-11:AM:floor": "eli",
+    "2026-11-11:PM:lead": "ben",
+    "2026-11-11:PM:floor": "farah",
+    "2026-11-12:AM:lead": "chen",
+    "2026-11-12:AM:floor": "gopal",
+    "2026-11-12:PM:lead": "devi",
+    "2026-11-12:PM:floor": "hana",
+    "2026-11-13:AM:lead": "asha",
+    "2026-11-13:AM:floor": "eli",
+    "2026-11-13:PM:lead": "ben",
+    "2026-11-13:PM:floor": "farah",
+    "2026-11-14:AM:lead": "chen",
+    "2026-11-14:AM:floor": "gopal",
+    "2026-11-14:PM:lead": "devi",
+    "2026-11-14:PM:floor": "hana",
+    "2026-11-15:AM:lead": "asha",
+    "2026-11-15:AM:floor": "eli",
+    "2026-11-15:PM:lead": "ben",
+    "2026-11-15:PM:floor": "farah"
+  },
+  "pins": {
+    "2026-11-12:AM:lead": "chen",
+    "2026-11-15:PM:lead": "ben",
+    "2026-11-09:AM:floor": "eli"
+  }
+}

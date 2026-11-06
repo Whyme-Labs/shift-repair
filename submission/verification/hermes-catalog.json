@@ -1,0 +1,108 @@
+{
+  "verification_date": "2026-11-06",
+  "command": "hermes plugins validate /workspace/scratch/b07e23cd47f9/hermes-build-runtime/shiftrepair-admission-candidate --install-deps --json",
+  "hermes_release": "v0.22.7",
+  "hermes_commit": "b200f5bc60e31588ba2cb60e288029c4a54ba5fa",
+  "supported_python": "3.14.9",
+  "profile_home": "isolated .hermes-admission-home under hermes-build-runtime",
+  "dependency_preparation": "completed resolution and installation successfully",
+  "exit_code": 0,
+  "target": "clean working-tree snapshot; no published plugin commit exists yet",
+  "report": {
+    "ok": true,
+    "checks": [
+      {
+        "name": "manifest",
+        "ok": true,
+        "detail": "plugin.yaml parses"
+      },
+      {
+        "name": "manifest fields",
+        "ok": true,
+        "detail": "name, version, description present"
+      },
+      {
+        "name": "requires_hermes",
+        "ok": true,
+        "detail": "spec '>=0.22.7' parses"
+      },
+      {
+        "name": "config schema",
+        "ok": true,
+        "detail": "not declared"
+      },
+      {
+        "name": "requires_env",
+        "ok": true,
+        "detail": "all entries UPPER_SNAKE"
+      },
+      {
+        "name": "oauth",
+        "ok": true,
+        "detail": "not declared"
+      },
+      {
+        "name": "loadable",
+        "ok": true,
+        "detail": "entry: __init__.py, desktop/plugin.js"
+      },
+      {
+        "name": "python dependencies",
+        "ok": true,
+        "detail": "3 requirements from pyproject"
+      },
+      {
+        "name": "capability probe",
+        "ok": true,
+        "detail": "register() ran in isolation"
+      },
+      {
+        "name": "declared tools",
+        "ok": true,
+        "detail": "matches registrations"
+      },
+      {
+        "name": "declared hooks",
+        "ok": true,
+        "detail": "matches registrations"
+      },
+      {
+        "name": "declared middleware",
+        "ok": true,
+        "detail": "matches registrations"
+      },
+      {
+        "name": "built-in tool collisions",
+        "ok": true,
+        "detail": "no collisions"
+      },
+      {
+        "name": "security scan",
+        "ok": true,
+        "detail": "safe"
+      },
+      {
+        "name": "no core override",
+        "ok": true,
+        "detail": "no runtime rebinds of Hermes core"
+      },
+      {
+        "name": "desktop surface",
+        "ok": true,
+        "detail": "stays inside the plugin SDK surface"
+      }
+    ],
+    "warnings": [],
+    "isolation": {
+      "verdict": "host",
+      "host_ready": true,
+      "reasons": [],
+      "notes": [
+        "dashboard backend API is served through the plugin host (buffered responses)"
+      ],
+      "ctx_methods": [
+        "register_tool"
+      ]
+    }
+  }
+}

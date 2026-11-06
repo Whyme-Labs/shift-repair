@@ -1,0 +1,6 @@
+Verification date: 2026-11-06
+Runtime: Python 3.14.9; OR-Tools 9.15.6755; Pydantic 2.14.1; FastAPI 0.133.1
+Command: /workspace/scratch/b07e23cd47f9/hermes-build-runtime/.venv/bin/python -m pytest tests -q --maxfail=1 --tb=short
+Result: 61 passed, 20 subtests passed in 2.86s.
+Warning: Starlette TestClient recommends replacing the httpx test transport with httpx2.
+Scope: the working-tree test suite at this check, before final release publication.

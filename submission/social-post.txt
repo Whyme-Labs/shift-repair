@@ -1,0 +1,8 @@
+DRAFT ONLY. Not posted. Attach the real working demo before publishing.
+
+ShiftRepair for the @NousResearch Hermes plugin hackathon.
+
+One absence. A proven minimum-change repair. A native board showing every reassignment, verified constraints and explicit Apply.
+
+Demo below. Code: __REQUIRED_PUBLIC_REPOSITORY_URL__
+PR: __REQUIRED_CATALOG_PR_URL__

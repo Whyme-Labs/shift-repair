@@ -1,0 +1,36 @@
+# DRAFT TEMPLATE. Do not submit this file as-is.
+# Replace every __REQUIRED_...__ value with an existing public artifact.
+# Copy to plugin-catalog/shiftrepair.yaml in the Hermes catalog PR only after validation.
+name: shiftrepair
+title: ShiftRepair
+repo: __REQUIRED_PUBLIC_HTTPS_REPOSITORY_URL__
+sha: __REQUIRED_FULL_40_CHARACTER_PLUGIN_RELEASE_COMMIT__
+description: Repair weekly staff schedules with minimum disruption, verified constraints and a shared Desktop board.
+maintainer: __REQUIRED_REPOSITORY_OWNER_OR_MAJOR_CONTRIBUTOR__
+tier: community
+category: desktop
+requires_hermes: ">=0.22.7"
+version: "0.1.0"
+readme: true
+# Set only the platforms actually tested before submission.
+platforms:
+  - linux
+screenshots: []
+known_issues:
+  - Supports one location and seven days, with at most one assignment per person per day.
+  - Does not model labor law, contract terms, payroll, shift hours or minimum rest intervals.
+capabilities:
+  provides_tools:
+    - shiftrepair_get_board
+    - shiftrepair_load_demo
+    - shiftrepair_import_roster
+    - shiftrepair_change
+    - shiftrepair_solve
+    - shiftrepair_apply
+    - shiftrepair_discard
+    - shiftrepair_undo
+    - shiftrepair_export
+    - shiftrepair_import_csv
+  provides_hooks: []
+  provides_middleware: []
+  requires_env: []

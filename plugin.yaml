@@ -1,0 +1,25 @@
+name: shiftrepair
+version: "0.1.0"
+description: Repair weekly staff schedules with minimum disruption, verified constraints and a shared Desktop board.
+manifest_version: 2
+api_version: 1
+requires_hermes: ">=0.22.7"
+license: MIT
+tags:
+  - scheduling
+  - operations
+  - local
+provides_tools:
+  - shiftrepair_get_board
+  - shiftrepair_load_demo
+  - shiftrepair_import_roster
+  - shiftrepair_change
+  - shiftrepair_solve
+  - shiftrepair_apply
+  - shiftrepair_discard
+  - shiftrepair_undo
+  - shiftrepair_export
+  - shiftrepair_import_csv
+provides_hooks: []
+requires_env: []
+capabilities: []
