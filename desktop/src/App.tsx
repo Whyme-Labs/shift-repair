@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 import { Availability } from "./Availability";
 import { errorMessage } from "./api";
@@ -13,16 +13,24 @@ import type { AppProps, ExportFile, RosterChange } from "./types";
 import { useBoard } from "./useBoard";
 
 export function ShiftRepairApp(props: AppProps) {
-  const { board, loading, busy, error, connectionError, notice, refresh, mutate, setError, setNotice } = useBoard(props);
+  const { board, loading, busy, error, connectionError, notice, refresh, mutate, isCurrent, setError, setNotice } = useBoard(props);
   const [tab, setTab] = useState<"schedule" | "availability">("schedule");
   const [view, setView] = useState<"current" | "proposal">("proposal");
   const [modal, setModal] = useState<"reset" | "cover" | "import" | "history" | null>(null);
   const [exporting, setExporting] = useState(false);
+  const alive = useRef(false);
+  const exportLock = useRef(false);
+  const instanceId = useId();
   const scheduleTab = useRef<HTMLButtonElement>(null);
   const availabilityTab = useRef<HTMLButtonElement>(null);
-  const blocked = !!busy || exporting;
+  const working = !!busy || exporting;
+  const blocked = working || loading || !!connectionError;
   const validCandidate = !!board?.candidate && board.candidate.base_revision === board.revision && isValidResult(board.candidate.result);
   const preview = validCandidate && view === "proposal";
+  useEffect(() => {
+    alive.current = true;
+    return () => { alive.current = false; };
+  }, []);
   const changeTabWithKeyboard = (event: KeyboardEvent<HTMLButtonElement>) => {
     if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
     event.preventDefault();
@@ -43,44 +51,47 @@ export function ShiftRepairApp(props: AppProps) {
     if (await mutate("/demo", {}, "Loading example", "Example loaded. Try marking Asha unavailable on Monday.")) { setTab("schedule"); setView("proposal"); setModal(null); }
   };
   const download = async (kind: "schedule" | "project") => {
-    if (blocked) return;
+    if (blocked || exportLock.current || !isCurrent()) return;
+    exportLock.current = true;
     const scope = props.getScopeKey?.();
+    const current = () => alive.current && scope === props.getScopeKey?.();
     setExporting(true);
     setError(null);
     try {
       const file = await props.rest<ExportFile>(kind === "project" ? "/export?kind=project" : "/export");
-      if (scope !== props.getScopeKey?.()) throw new Error("The active connection changed. Download again from the current board.");
+      if (!current()) return;
       const result = await props.saveFile(file);
-      if (result === "saved") setNotice(kind === "project" ? "Project CSV exported with people, availability and rules." : "Current schedule exported as CSV.");
-    } catch (caught) { setError(errorMessage(caught)); }
-    finally { setExporting(false); }
+      if (current() && result === "saved") setNotice(kind === "project" ? "Project CSV exported with people, availability and rules." : "Current schedule exported as CSV.");
+    } catch (caught) { if (current()) setError(errorMessage(caught)); }
+    finally { exportLock.current = false; if (alive.current) setExporting(false); }
   };
 
   return <ModalContext.Provider value={props.dialog}><div className="sr-app">
     <style>{styles}</style>
-    <header className="sr-header"><div className="sr-brand"><div className="sr-mark" aria-hidden="true"><span /><span /><span /><span /></div><div><strong>ShiftRepair</strong><span>Small changes. A workable week.</span></div></div><div className="sr-header-meta"><span className="sr-environment">{props.mode === "desktop" ? "Hermes plugin" : "Local preview"}</span><button type="button" className="sr-icon-button" aria-label="Refresh schedule" disabled={blocked || loading} onClick={() => void refresh()}><Icon name="refresh" /></button></div></header>
+    <header className="sr-header"><div className="sr-brand"><div className="sr-mark" aria-hidden="true"><span /><span /><span /><span /></div><div><strong>ShiftRepair</strong><span>Small changes. A workable week.</span></div></div><div className="sr-header-meta"><span className="sr-environment">{props.mode === "desktop" ? "Hermes plugin" : "Local preview"}</span><button type="button" className="sr-icon-button" aria-label="Refresh schedule" disabled={working || loading} onClick={() => void refresh()}><Icon name="refresh" /></button></div></header>
     <main className="sr-main">
-      {(error || connectionError) && <div className="sr-banner sr-banner-error" role="alert"><Icon name="alert" /><p>{error || `Connection problem. ${connectionError}`}</p><button type="button" className="sr-button sr-button-subtle" disabled={blocked} onClick={() => { setError(null); void refresh(); }}>Refresh</button>{error && <button type="button" className="sr-icon-button" onClick={() => setError(null)} aria-label="Dismiss error"><Icon name="close" width="16" height="16" /></button>}</div>}
+      {(error || connectionError) && <div className="sr-banner sr-banner-error" role="alert"><Icon name="alert" /><p>{error || `Connection problem. ${connectionError}`}</p><button type="button" className="sr-button sr-button-subtle" disabled={working || loading} onClick={() => { setError(null); void refresh(); }}>Refresh</button>{error && <button type="button" className="sr-icon-button" onClick={() => setError(null)} aria-label="Dismiss error"><Icon name="close" width="16" height="16" /></button>}</div>}
       {notice && <div className="sr-banner sr-banner-success" role="status"><Icon name="check" /><p>{notice}</p><button type="button" className="sr-icon-button" onClick={() => setNotice(null)} aria-label="Dismiss notice"><Icon name="close" width="16" height="16" /></button></div>}
-      {loading && !board ? <section className="sr-empty" role="status"><div className="sr-spinner" /><h1>Opening your schedule</h1><p>Reading the current board from the ShiftRepair backend.</p></section> : !board ? <section className="sr-empty">
+      {loading && !board ? <section className="sr-empty" role="status"><div className="sr-spinner" /><h1>Opening your schedule</h1><p>Reading the current board from the ShiftRepair backend.</p></section> : !board && connectionError ? <section className="sr-empty"><Icon name="alert" width="32" height="32" /><h1>Your schedule could not be loaded</h1><p>Reconnect to the ShiftRepair backend, then refresh to read the current board.</p><div className="sr-empty-actions"><button type="button" className="sr-button sr-button-primary" disabled={working || loading} onClick={() => void refresh()}>Try loading again</button></div></section> : !board ? <section className="sr-empty">
         <div className="sr-empty-art" aria-hidden="true"><div /><div /><div /><div /><div /><div /><div className="sr-empty-art-active"><Icon name="repair" width="32" height="32" /></div><div /><div /></div>
         <span className="sr-eyebrow">A last-minute absence. A smaller repair.</span><h1>Keep the rest of the week intact.</h1><p>When staffing changes, ShiftRepair finds a valid schedule with the fewest assignment changes it can prove. You review the difference before applying it.</p>
         <div className="sr-empty-actions"><button type="button" className="sr-button sr-button-primary" onClick={() => void loadDemo()} disabled={blocked}><Icon name="calendar" />{busy === "Loading example" ? "Loading example…" : "Open the example week"}</button><button type="button" className="sr-button" disabled={blocked} onClick={() => setModal("import")}><Icon name="upload" />Import project CSV</button></div>
         <span className="sr-caption">8 people · 28 positions · a real constraint solver · no model API key needed</span>
       </section> : <>
-        <section className="sr-heading-row"><div><span className="sr-eyebrow">Weekly staffing</span><h1>{board.roster.name}</h1><p><Icon name="calendar" width="16" height="16" />{weekLabel(board.roster.week_start)}<span className="sr-separator">/</span><button type="button" className="sr-revision" onClick={() => setModal("history")}>Revision {board.revision}<Icon name="chevron" width="12" height="12" /></button></p></div><div className="sr-heading-actions"><button type="button" className="sr-button" onClick={() => void mutate("/undo", { expected_revision: board.revision }, "Restoring revision", "Previous content restored as a new revision.")} disabled={blocked || board.history.length < 2}><Icon name="undo" width="16" height="16" />Undo</button><button type="button" className="sr-button" onClick={() => void download("schedule")} disabled={blocked || board.validation.length > 0} title={board.validation.length ? "Repair the current schedule before exporting" : "Download the current schedule, not the unaccepted proposal"}><Icon name="download" width="16" height="16" />{exporting ? "Exporting…" : "Export schedule"}</button></div></section>
+        <section className="sr-heading-row"><div><span className="sr-eyebrow">Weekly staffing</span><h1>{board.roster.name}</h1><p><Icon name="calendar" width="16" height="16" />{weekLabel(board.roster.week_start)}<span className="sr-separator">/</span><button type="button" className="sr-revision" onClick={() => setModal("history")}>Revision {board.revision}<Icon name="chevron" width="12" height="12" /></button></p></div><div className="sr-heading-actions"><button type="button" className="sr-button" onClick={() => void mutate("/undo", { expected_revision: board.revision }, "Restoring revision", "Previous content restored as a new revision.")} disabled={blocked || !board.can_undo} title={board.can_undo ? "Restore the previous schedule and rules" : "No earlier version is available to restore"}><Icon name="undo" width="16" height="16" />Undo</button><button type="button" className="sr-button" onClick={() => void download("schedule")} disabled={blocked || board.validation.length > 0} title={board.validation.length ? "Repair the current schedule before exporting" : "Download the current schedule, not the unaccepted proposal"}><Icon name="download" width="16" height="16" />{exporting ? "Exporting…" : "Export schedule"}</button></div></section>
         <div className="sr-workspace">
           <div className="sr-board-column">
             <section className="sr-board-card">
-              <div className="sr-board-toolbar"><div className="sr-tabs" role="tablist" aria-label="Schedule and team rules"><button ref={scheduleTab} type="button" role="tab" tabIndex={tab === "schedule" ? 0 : -1} aria-selected={tab === "schedule"} aria-controls="sr-schedule-panel" id="sr-schedule-tab" onKeyDown={changeTabWithKeyboard} onClick={() => setTab("schedule")}><Icon name="calendar" width="16" height="16" />Schedule</button><button ref={availabilityTab} type="button" role="tab" tabIndex={tab === "availability" ? 0 : -1} aria-selected={tab === "availability"} aria-controls="sr-availability-panel" id="sr-availability-tab" onKeyDown={changeTabWithKeyboard} onClick={() => setTab("availability")}><Icon name="people" width="16" height="16" />Availability & limits</button></div><span className="sr-board-count">{board.roster.people.length} people · {board.roster.slots.length} positions</span></div>
+              <div className="sr-board-toolbar"><div className="sr-tabs" role="tablist" aria-label="Schedule and team rules"><button ref={scheduleTab} type="button" role="tab" tabIndex={tab === "schedule" ? 0 : -1} aria-selected={tab === "schedule"} aria-controls={`${instanceId}-schedule-panel`} id={`${instanceId}-schedule-tab`} onKeyDown={changeTabWithKeyboard} onClick={() => setTab("schedule")}><Icon name="calendar" width="16" height="16" />Schedule</button><button ref={availabilityTab} type="button" role="tab" tabIndex={tab === "availability" ? 0 : -1} aria-selected={tab === "availability"} aria-controls={`${instanceId}-availability-panel`} id={`${instanceId}-availability-tab`} onKeyDown={changeTabWithKeyboard} onClick={() => setTab("availability")}><Icon name="people" width="16" height="16" />Availability & limits</button></div><span className="sr-board-count">{board.roster.people.length} people · {board.roster.slots.length} positions</span></div>
               <div className="sr-view-bar"><p>{tab === "availability" ? "Select a day to change availability. Set each person's weekly limit." : preview ? "Proposed schedule. Highlighted positions change when you apply." : "Current schedule. Lock an assignment to keep that person in place."}</p>{validCandidate && tab === "schedule" && <div className="sr-segmented" role="group" aria-label="Schedule version"><button type="button" aria-pressed={view === "current"} onClick={() => setView("current")}>Current</button><button type="button" aria-pressed={view === "proposal"} onClick={() => setView("proposal")}>Proposal</button></div>}</div>
-              {tab === "schedule" ? <div role="tabpanel" id="sr-schedule-panel" aria-labelledby="sr-schedule-tab"><Schedule board={board} preview={preview} busy={blocked} change={(changes) => void change(changes)} /><div className="sr-table-footer"><div className="sr-legend"><span><i className="sr-legend-change" />Proposed change</span><span><i className="sr-legend-issue" />Needs attention</span><span><Icon name="lock" width="12" height="12" />Locked</span></div><span>{connectionError ? "Connection interrupted" : "Refreshes every 3 seconds"}</span></div></div> : <div role="tabpanel" id="sr-availability-panel" aria-labelledby="sr-availability-tab"><Availability board={board} busy={blocked} change={(changes) => void change(changes)} addPerson={() => setModal("cover")} /></div>}
+              <div role="tabpanel" id={`${instanceId}-schedule-panel`} aria-labelledby={`${instanceId}-schedule-tab`} hidden={tab !== "schedule"}>{tab === "schedule" && <><Schedule board={board} preview={preview} busy={blocked} change={(changes) => void change(changes)} /><div className="sr-table-footer"><div className="sr-legend"><span><i className="sr-legend-change" />Proposed change</span><span><i className="sr-legend-issue" />Needs attention</span><span><Icon name="lock" width="12" height="12" />Locked</span></div><span>{connectionError ? "Connection interrupted" : "Refreshes every 3 seconds"}</span></div></> }</div>
+              <div role="tabpanel" id={`${instanceId}-availability-panel`} aria-labelledby={`${instanceId}-availability-tab`} hidden={tab !== "availability"}>{tab === "availability" && <Availability board={board} busy={blocked} change={(changes) => void change(changes)} addPerson={() => setModal("cover")} />}</div>
             </section>
             <section className="sr-rules-card" aria-labelledby="sr-rules-title"><div className="sr-rules-title"><Icon name="check" width="16" height="16" /><h2 id="sr-rules-title">Rules every repair must satisfy</h2></div><div className="sr-rules"><span>Every position filled</span><span>Qualified people only</span><span>Available days only</span><span>One assignment per person per day</span><span>Weekly limits respected</span><span>{Object.keys(board.roster.pins).length} locked {Object.keys(board.roster.pins).length === 1 ? "position" : "positions"}</span></div></section>
             <section className="sr-demo-note"><span className="sr-demo-note-icon"><Icon name="repair" /></span><div><strong>Try a disruption</strong><p>Open Availability & limits and mark {board.roster.people.some((person) => person.id === "asha") ? "Asha unavailable on Monday" : "a scheduled person unavailable"}. Find a repair and inspect exactly who moves.</p></div><button type="button" className="sr-button sr-button-subtle" onClick={() => setTab("availability")}>Edit availability<Icon name="arrow" width="15" height="15" /></button></section>
             <footer className="sr-board-bottom"><div><button type="button" onClick={() => setModal("import")} disabled={blocked}>Import project CSV</button><button type="button" onClick={() => void download("project")} disabled={blocked || board.validation.length > 0} title={board.validation.length ? "Repair the current schedule before exporting" : "Download the full current project with people and rules"}>Export project data</button><button type="button" onClick={() => setModal("reset")} disabled={blocked}>Reset example</button></div><span>Explicit changes · reversible revisions</span></footer>
           </div>
-          <RepairPanel board={board} busy={busy} solve={() => void solve()} apply={() => { if (board.candidate) void mutate("/apply", { expected_revision: board.revision, candidate_id: board.candidate.id }, "Applying repair", "Repair applied. The current schedule is updated and checked."); }} discard={() => { if (board.candidate) void mutate("/discard", { expected_revision: board.revision, candidate_id: board.candidate.id }, "Discarding proposal", "Proposal discarded. The current schedule is unchanged."); }} addPerson={() => setModal("cover")} />
+          <RepairPanel board={board} busy={busy || (blocked ? "Waiting for current schedule" : null)} solve={() => void solve()} apply={() => { if (board.candidate) void mutate("/apply", { expected_revision: board.revision, candidate_id: board.candidate.id }, "Applying repair", "Repair applied. The current schedule is updated and checked."); }} discard={() => { if (board.candidate) void mutate("/discard", { expected_revision: board.revision, candidate_id: board.candidate.id }, "Discarding proposal", "Proposal discarded. The current schedule is unchanged."); }} addPerson={() => setModal("cover")} />
         </div>
       </>}
       {busy && busy !== "Finding a repair" && <div className="sr-operation" role="status"><div className="sr-spinner" />{busy}…</div>}

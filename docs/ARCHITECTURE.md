@@ -50,13 +50,17 @@ an old solve from attaching a candidate to new facts. Multiple solves for one
 revision get distinct candidate IDs; only the last stored candidate can apply.
 
 Apply loads that candidate inside the same write transaction as the revision
-check, verifies it independently against the current rules, and creates a new
-baseline revision. A repeated Apply request fails its old revision check.
+check, verifies it independently against the current rules, and recomputes the
+change list against the accepted baseline. The result and reported diff must
+agree before a new baseline revision is created. A repeated Apply request fails
+its old revision check.
 
 Undo restores prior content as a new revision. Each revision also has a parent
 pointer, so repeated Undo moves backward through content history rather than
 toggling the last two snapshots. The response includes the newest 20 audit
 entries, while SQLite retains the full history.
+The board's `can_undo` flag comes from the current revision's parent pointer,
+so the interface can disable Undo even when earlier audit entries remain visible.
 
 Events fire after commit and carry the revision number. An event transport
 failure is logged without reversing the committed mutation or falsely telling

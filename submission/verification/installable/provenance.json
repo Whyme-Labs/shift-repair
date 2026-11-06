@@ -1,0 +1,9 @@
+{
+  "checked_local_commit": "c4d1e434bd8dc4bb0aaf1973d17677d578c8b754",
+  "github_implementation_commit": "887b557dfba1f4d2f6d355d4f2377be68ab2af2d",
+  "git_tree": "7d6e6b0108486c3b355c04fba19343801d1c3ffe",
+  "same_git_tree_verified": true,
+  "source_sha256": "05a616a695651272de7670765081064008b0affdcc4f49095152c5b744885709",
+  "implementation_inputs_sha256": "ccf4fabb91d6c4469ba1b31d3823238f14be679c55a0c82a88f7342ac18197c5",
+  "note": "The GitHub implementation commit contains the exact checked file tree. A following documentation/evidence commit records these results without changing the implementation inputs. Historical MVP evidence remains in the parent directory. Final public catalog release selection and actual Desktop walkthrough remain pending."
+}

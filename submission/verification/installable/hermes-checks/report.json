@@ -1,0 +1,108 @@
+{
+  "checked_at_utc": "2026-11-06T03:13:14.195676+00:00",
+  "source_commit": "c4d1e434bd8dc4bb0aaf1973d17677d578c8b754",
+  "source_sha256": "05a616a695651272de7670765081064008b0affdcc4f49095152c5b744885709",
+  "implementation_inputs_sha256": "ccf4fabb91d6c4469ba1b31d3823238f14be679c55a0c82a88f7342ac18197c5",
+  "hermes_commit": "b200f5bc60e31588ba2cb60e288029c4a54ba5fa",
+  "hermes_home": "/workspace/scratch/b07e23cd47f9/shiftrepair-hermes-c4d1e43-home",
+  "commands": [
+    {
+      "step": "prepare-exact-package",
+      "command": [
+        "uv",
+        "pip",
+        "install",
+        "--python",
+        "/workspace/scratch/b07e23cd47f9/hermes-build-runtime/.venv/bin/python",
+        "--no-deps",
+        "-e",
+        "/workspace/scratch/b07e23cd47f9/shiftrepair-release-c4d1e43/source"
+      ],
+      "cwd": "/workspace/scratch/b07e23cd47f9/hermes-build-runtime",
+      "exit_code": 0,
+      "stdout": "prepare-exact-package.stdout.txt",
+      "stderr": "prepare-exact-package.stderr.txt"
+    },
+    {
+      "step": "runtime",
+      "command": [
+        "/workspace/scratch/b07e23cd47f9/hermes-build-runtime/.venv/bin/python",
+        "-c",
+        "import importlib.metadata as m,json,platform,shiftrepair; print(json.dumps({'python':platform.python_version(),'shiftrepair_import':shiftrepair.__file__,'packages':{n:m.version(n) for n in ['fastapi','pydantic','ortools','pytest']}}))"
+      ],
+      "cwd": "/workspace/scratch/b07e23cd47f9/hermes-build-runtime",
+      "exit_code": 0,
+      "stdout": "runtime.stdout.txt",
+      "stderr": "runtime.stderr.txt"
+    },
+    {
+      "step": "python-tests",
+      "command": [
+        "/workspace/scratch/b07e23cd47f9/hermes-build-runtime/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests",
+        "-q"
+      ],
+      "cwd": "/workspace/scratch/b07e23cd47f9/shiftrepair-release-c4d1e43/source",
+      "exit_code": 0,
+      "stdout": "python-tests.stdout.txt",
+      "stderr": "python-tests.stderr.txt"
+    },
+    {
+      "step": "doctor",
+      "command": [
+        "/workspace/scratch/b07e23cd47f9/hermes-build-runtime/.venv/bin/hermes",
+        "plugins",
+        "doctor",
+        "/workspace/scratch/b07e23cd47f9/shiftrepair-release-c4d1e43/source",
+        "--ci"
+      ],
+      "cwd": "/workspace/scratch/b07e23cd47f9/hermes-build-runtime",
+      "exit_code": 0,
+      "stdout": "doctor.stdout.txt",
+      "stderr": "doctor.stderr.txt"
+    },
+    {
+      "step": "catalog",
+      "command": [
+        "/workspace/scratch/b07e23cd47f9/hermes-build-runtime/.venv/bin/hermes",
+        "plugins",
+        "validate",
+        "/workspace/scratch/b07e23cd47f9/shiftrepair-release-c4d1e43/source",
+        "--install-deps",
+        "--json"
+      ],
+      "cwd": "/workspace/scratch/b07e23cd47f9/hermes-build-runtime",
+      "exit_code": 0,
+      "stdout": "catalog.stdout.txt",
+      "stderr": "catalog.stderr.txt"
+    }
+  ],
+  "status": "passed",
+  "runtime": {
+    "python": "3.14.9",
+    "shiftrepair_import": "/workspace/scratch/b07e23cd47f9/shiftrepair-release-c4d1e43/source/shiftrepair/__init__.py",
+    "packages": {
+      "fastapi": "0.133.1",
+      "pydantic": "2.14.1",
+      "ortools": "9.15.6755",
+      "pytest": "9.2.0"
+    }
+  },
+  "catalog_summary": {
+    "ok": true,
+    "warnings": [],
+    "isolation": {
+      "verdict": "host",
+      "host_ready": true,
+      "reasons": [],
+      "notes": [
+        "dashboard backend API is served through the plugin host (buffered responses)"
+      ],
+      "ctx_methods": [
+        "register_tool"
+      ]
+    }
+  }
+}

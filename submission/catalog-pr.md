@@ -22,14 +22,14 @@ It does not claim labor-law compliance, payroll support or rest-period modeling.
 
 ## Release and evidence
 
-- Public repository: `__REQUIRED_PUBLIC_REPOSITORY_URL__`
+- Repository: https://github.com/Whyme-Labs/shift-repair, currently private and requiring public access before submission.
 - Pinned plugin commit: `__REQUIRED_40_CHARACTER_COMMIT__`
 - Version: `0.1.0`
 - Minimum Hermes: `>=0.22.7`
 - Runtime test log: `__REQUIRED_RELEASE_VERIFICATION_LINK__`
 - Native Desktop screenshots: `__REQUIRED_SCREENSHOT_LINKS__`
 - Working demo under 90 seconds: `__REQUIRED_VIDEO_LINK__`
-- Repository owner or major contributor: `__REQUIRED_SUBMITTER_IDENTITY__`
+- Repository contributor: `wms2537`, with release ownership to confirm before submission.
 
 Replace this paragraph with the actual release validation results, including
 Python version, Hermes commit, Python test count, the doctor result and the
