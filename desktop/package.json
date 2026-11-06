@@ -6,17 +6,22 @@
   "scripts": {
     "build": "tsc --noEmit && node build.mjs",
     "test": "node build.mjs --tests && node --test test/*.test.mjs",
-    "test:ui": "node build.mjs --components && node --test test/*.integration.mjs"
+    "test:ui": "node build.mjs --components && node --test test/*.integration.mjs",
+    "test:native": "tsc -p tsconfig.native-tests.json && node build.mjs --native-tests && node --test test/*.native.mjs",
+    "check:sdk": "node scripts/sdk-contract.mjs"
   },
   "dependencies": {
     "react": "19.2.0",
     "react-dom": "19.2.0"
   },
   "devDependencies": {
+    "@nanostores/react": "1.1.0",
+    "@radix-ui/react-dialog": "1.2.0",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
     "esbuild": "0.25.12",
     "jsdom": "27.2.0",
+    "nanostores": "1.4.2",
     "typescript": "5.9.3"
   }
 }

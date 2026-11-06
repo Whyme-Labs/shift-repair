@@ -51,7 +51,7 @@ are the admission rules. The current local verification target is Hermes
 
 | Requirement | ShiftRepair preparation | Release gate |
 | --- | --- | --- |
-| Public cloneable repository | Source tree and package metadata exist | Publish the user's chosen repository |
+| Public cloneable repository | Source is tracked in `Whyme-Labs/shift-repair`, currently private | Make the approved release repository publicly cloneable before submission |
 | Loadable plugin | Root Python entrypoint, manifest, native Desktop bundle and REST router | Run the real loader against the exact release tree |
 | Public Hermes surfaces only | `ctx.register_tool`, `plugin_data_dir`, `broadcast_plugin_event`, native Desktop SDK and documented router mount | Review validator warnings and native smoke test |
 | Complete capability declarations | Ten tools declared in `plugin.yaml` | Keep catalog list and actual registration identical |
@@ -132,7 +132,7 @@ After publication, an immutable public repository installation uses the actual
 repository URL and release SHA:
 
 ```bash
-hermes plugins install https://github.com/ACTUAL_OWNER/ACTUAL_REPOSITORY --ref ACTUAL_FULL_40_CHARACTER_SHA --yes-deps --enable
+hermes plugins install https://github.com/Whyme-Labs/shift-repair --ref ACTUAL_FULL_40_CHARACTER_SHA --yes-deps --enable
 ```
 
 The install parser accepts Git URLs and owner/repository shorthand. A `file://`

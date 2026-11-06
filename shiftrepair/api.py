@@ -125,14 +125,24 @@ def create_app(data_dir: Path, preview_dir: Path | None = None) -> FastAPI:
     app.include_router(
         create_router(lambda: RosterService(data_dir)), prefix="/api/plugins/shiftrepair"
     )
-    assets = preview_dir or Path(__file__).resolve().parent.parent / "preview"
+    package_dir = Path(__file__).resolve().parent
+    # Wheels place the browser bundle inside the package. Source and editable
+    # installs keep the same build output at the repository's root.
+    assets = preview_dir or package_dir / "_preview"
+    if preview_dir is None and not assets.is_dir():
+        source_dir = package_dir.parent
+        if (source_dir / "plugin.yaml").is_file():
+            assets = source_dir / "preview"
     if assets.is_dir() and (assets / "index.html").is_file():
         app.mount("/", StaticFiles(directory=assets, html=True), name="preview")
     else:
         @app.get("/")
         def missing_preview() -> dict[str, str]:
             return {
-                "message": "The API is running. Build desktop assets with npm run build in desktop/.",
+                "message": (
+                    "The API is running, but preview assets are missing. Reinstall a complete "
+                    "wheel or build the source assets with npm run build in desktop/."
+                ),
                 "api_docs": "/api/docs",
             }
     return app

@@ -7,29 +7,43 @@ export class ApiError extends Error {
   }
 }
 
+export class ScopeChangedError extends Error {
+  constructor() {
+    super("The active Hermes connection changed. Refresh the current schedule before trying again.");
+    this.name = "ScopeChangedError";
+  }
+}
+
 export function errorMessage(error: unknown): string {
   if (error instanceof Error && error.message) return error.message;
+  if (error && typeof error === "object" && "message" in error && typeof error.message === "string" && error.message) return error.message;
   if (typeof error === "string" && error) return error;
   return "The request could not be completed. Check the connection and try again.";
 }
 
 export function isStaleError(error: unknown): boolean {
-  return error instanceof ApiError && error.status === 409 || /stale|revision|changed since|conflict/i.test(errorMessage(error));
+  if (error && typeof error === "object") {
+    const info = error as { status?: unknown; statusCode?: unknown; code?: unknown };
+    if (Number(info.status ?? info.statusCode) === 409 || info.code === "stale_revision" || info.code === "stale_candidate") return true;
+  }
+  return /\b(?:stale revision|stale candidate|candidate is stale)\b/i.test(errorMessage(error));
 }
 
 export function normalizeSdkError(error: unknown): Error {
   const message = errorMessage(error);
+  const structuredStatus = error && typeof error === "object" && "statusCode" in error ? Number(error.statusCode) : NaN;
+  const textualStatus = message.match(/(?:^|:\s*)([45]\d\d):\s/);
+  const status = Number.isInteger(structuredStatus) && structuredStatus >= 400 && structuredStatus < 600 ? structuredStatus : textualStatus ? Number(textualStatus[1]) : undefined;
   const start = message.indexOf("{");
   if (start >= 0) {
     try {
       const data = JSON.parse(message.slice(start)) as { detail?: { code?: string; message?: string } };
-      if (data.detail?.message) {
-        const status = error && typeof error === "object" && "statusCode" in error ? Number(error.statusCode) : undefined;
+      if (typeof data.detail?.message === "string" && data.detail.message) {
         return new ApiError(data.detail.message, status, data.detail.code);
       }
     } catch { /* Preserve the original error if the transport did not carry JSON. */ }
   }
-  return error instanceof Error ? error : new Error(message);
+  return status ? new ApiError(message, status) : error instanceof Error ? error : new Error(message);
 }
 
 export function createFetchRest(base = "/api/plugins/shiftrepair", fetcher: typeof fetch = fetch): Rest {

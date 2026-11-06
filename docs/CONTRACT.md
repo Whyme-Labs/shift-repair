@@ -21,7 +21,7 @@ examples.demo_roster() -> Roster, deterministic fixture equivalent to prior8-per
 
 ## Shared service and HTTP contract
 
-Root implements storage.py/service.py/api.py/cli.py. Storage SQLite with optimistic revisions. One active board is enough; each has id, revision, roster, validation list, candidate object or null, history list. Candidate: id, base_revision, result SolveResult, created_at. History entries: revision, action, created_at. View shape always {id, revision, roster, validation, candidate, history}. Empty response {board:null}.
+The shared implementation is storage.py/service.py/api.py/cli.py. Storage uses SQLite with optimistic revisions. One active board has id, revision, can_undo, roster, validation list, candidate object or null, and history list. Candidate: id, base_revision, result SolveResult, created_at. History entries: revision, action, created_at. View shape always {id, revision, can_undo, roster, validation, candidate, history}. Empty response {board:null}. can_undo is derived from the current revision's parent pointer, not the number of visible audit entries.
 
 Backend REST mounted /api/plugins/shiftrepair by Hermes. UI receives a rest adapter accepting relative route. Endpoints:
 GET /board -> {board: BoardView|null}
@@ -29,7 +29,7 @@ POST /demo body{} -> {board: BoardView}, resets the active example explicitly.
 POST /roster body {roster: Roster, expected_revision?:int} -> {board:BoardView}. Creates only if no board unless correct revision supplied.
 POST /changes body {expected_revision:int, changes:[{type:availability,person_id,date,available:bool}|{type:pin,slot_id,person_id|null}|{type:capacity,person_id,max_assignments:int}|{type:add_person,person:Person}]} -> {board:BoardView}. Typed strict changes, candidate invalidated.
 POST /solve body {expected_revision:int} -> {board:BoardView}. Solver produces candidate even for INFEASIBLE or UNKNOWN. Candidate doesn't change roster baseline.
-POST /apply body {expected_revision:int,candidate_id:str} -> {board:BoardView}. Only apply stored candidate matching revision, independently validate again, new baseline/revision.
+POST /apply body {expected_revision:int,candidate_id:str} -> {board:BoardView}. Only apply stored candidate matching revision, independently validate again, verify the reported diff against the current baseline, and create a new baseline/revision. Malformed stored results return structured invalid_repair errors without mutation.
 POST /undo body {expected_revision:int} -> {board:BoardView}. Restore previous content as new revision, preserving audit history.
 POST /discard body {expected_revision:int,candidate_id:str} -> {board:BoardView}. Clear the matching candidate without changing the input revision.
 GET /export?kind=schedule|project -> {filename,content,mime_type}; only export current baseline if independently valid. The default schedule CSV is readable output; the project CSV preserves the complete modeled week. See docs/CSV.md.

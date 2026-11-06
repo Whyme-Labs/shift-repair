@@ -71,6 +71,7 @@ export interface BoardView {
   validation: Violation[];
   candidate: Candidate | null;
   history: HistoryEntry[];
+  can_undo: boolean;
 }
 
 export type RosterChange =
@@ -89,6 +90,7 @@ export type Rest = <T>(path: string, options?: RestOptions) => Promise<T>;
 export interface BoardResponse { board: BoardView | null }
 export interface ExportFile { filename: string; content: string; mime_type: string }
 export type SaveFile = (file: ExportFile) => Promise<"saved" | "cancelled">;
+export type StartPolling = (refresh: () => void, intervalMs: number) => () => void;
 export interface DialogProps { title: string; children: ReactNode; onClose: () => void }
 
 export interface AppProps {
@@ -97,5 +99,6 @@ export interface AppProps {
   mode: "desktop" | "preview";
   getScopeKey?: () => string;
   subscribe?: (refresh: () => void) => () => void;
+  startPolling?: StartPolling;
   dialog?: ComponentType<DialogProps>;
 }

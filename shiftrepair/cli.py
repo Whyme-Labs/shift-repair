@@ -33,7 +33,10 @@ def main(argv: list[str] | None = None) -> int:
         try:
             import uvicorn
         except ImportError:
-            parser.error("Install the preview extra: pip install -e '.[preview]'")
+            parser.error(
+                "Preview server support is optional. Install your ShiftRepair source "
+                "directory or wheel with the [preview] extra."
+            )
         uvicorn.run(create_app(args.data_dir, args.preview_dir), host="127.0.0.1", port=args.port)
         return 0
     service = RosterService(args.data_dir)

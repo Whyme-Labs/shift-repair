@@ -25,6 +25,7 @@ Json = dict[str, Any]
 class State:
     id: str
     revision: int
+    can_undo: bool
     roster: Json
     candidate: Json | None
     history: list[Json]
@@ -94,7 +95,7 @@ class Store:
 
     def _read(self, connection: sqlite3.Connection) -> State | None:
         row = connection.execute(
-            "SELECT board.id, board.revision, revisions.roster_json "
+            "SELECT board.id, board.revision, revisions.roster_json, revisions.parent_revision "
             "FROM board JOIN revisions ON revisions.revision = board.revision "
             "WHERE board.singleton = 1"
         ).fetchone()
@@ -119,6 +120,7 @@ class Store:
         return State(
             id=row["id"],
             revision=row["revision"],
+            can_undo=row["parent_revision"] is not None,
             roster=json.loads(row["roster_json"]),
             candidate=candidate,
             history=history,

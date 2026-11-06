@@ -1,101 +1,162 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { errorMessage, isStaleError } from "./api";
-import type { AppProps, BoardResponse, BoardView } from "./types";
+import type { AppProps, BoardResponse, BoardView, StartPolling } from "./types";
 
-export function useBoard({ rest, getScopeKey, subscribe }: Pick<AppProps, "rest" | "getScopeKey" | "subscribe">) {
+const browserPolling: StartPolling = (refresh, intervalMs) => {
+  const timer = setInterval(refresh, intervalMs);
+  return () => clearInterval(timer);
+};
+
+function boardFrom(response: BoardResponse, allowEmpty: boolean): BoardView | null {
+  if (response && Object.hasOwn(response, "board")) {
+    if (allowEmpty && response.board === null) return null;
+    if (response.board && typeof response.board.id === "string" && Number.isInteger(response.board.revision) && response.board.roster && typeof response.board.can_undo === "boolean") return response.board;
+  }
+  throw new Error("The backend returned an unsupported board response. Check that the agent and Desktop parts of ShiftRepair use the same version.");
+}
+
+export function useBoard({ rest, getScopeKey, subscribe, startPolling = browserPolling }: Pick<AppProps, "rest" | "getScopeKey" | "subscribe" | "startPolling">) {
   const [board, setBoard] = useState<BoardView | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const alive = useRef(true);
-  const operation = useRef(false);
+  const alive = useRef(false);
+  const operation = useRef<{ scope: string } | null>(null);
   const request = useRef(0);
   const scope = useRef(getScopeKey?.() ?? "local");
-  const currentBoard = useRef<BoardView | null>(null);
+  const ready = useRef(false);
+  const pendingRead = useRef<{ scope: string; ticket: number; promise: Promise<boolean> } | null>(null);
+  const refreshAfterWrite = useRef(false);
 
-  const refresh = useCallback(async (quiet = false) => {
-    if (operation.current) return;
-    const nextScope = getScopeKey?.() ?? "local";
-    if (scope.current !== nextScope) {
-      scope.current = nextScope;
-      currentBoard.current = null;
+  const currentScope = useCallback(() => getScopeKey?.() ?? "local", [getScopeKey]);
+  const isCurrent = useCallback(() => alive.current && ready.current && scope.current === currentScope(), [currentScope]);
+
+  const syncScope = useCallback(() => {
+    const next = currentScope();
+    if (scope.current !== next) {
+      scope.current = next;
+      ++request.current;
+      pendingRead.current = null;
+      operation.current = null;
+      refreshAfterWrite.current = false;
+      ready.current = false;
       setBoard(null);
+      setBusy(null);
       setNotice(null);
       setError(null);
-      quiet = false;
+      setConnectionError(null);
+      setLoading(true);
     }
+    return next;
+  }, [currentScope]);
+
+  const refresh = useCallback((quiet = false, recovery = false): Promise<boolean> => {
+    if (!alive.current) return Promise.resolve(false);
+    const nextScope = syncScope();
+    if (operation.current && !recovery) {
+      refreshAfterWrite.current = true;
+      return Promise.resolve(false);
+    }
+    if (pendingRead.current?.scope === nextScope) return pendingRead.current.promise;
     const ticket = ++request.current;
     if (!quiet) setLoading(true);
-    try {
-      const response = await rest<BoardResponse>("/board");
-      if (!alive.current || ticket !== request.current || nextScope !== (getScopeKey?.() ?? "local")) return;
-      currentBoard.current = response.board;
-      setBoard(response.board);
-      setConnectionError(null);
-    } catch (error) {
-      if (alive.current && ticket === request.current) setConnectionError(errorMessage(error));
-    } finally {
-      if (alive.current && ticket === request.current) setLoading(false);
-    }
-  }, [rest, getScopeKey]);
+    const current = () => alive.current && ticket === request.current && nextScope === scope.current && nextScope === currentScope();
+    const promise = (async () => {
+      try {
+        const response = await rest<BoardResponse>("/board");
+        if (!current()) return false;
+        const nextBoard = boardFrom(response, true);
+        ready.current = true;
+        setBoard(nextBoard);
+        setConnectionError(null);
+        return true;
+      } catch (caught) {
+        if (current()) {
+          ready.current = false;
+          setConnectionError(errorMessage(caught));
+        }
+        return false;
+      } finally {
+        if (pendingRead.current?.ticket === ticket) pendingRead.current = null;
+        if (current()) setLoading(false);
+      }
+    })();
+    pendingRead.current = { scope: nextScope, ticket, promise };
+    return promise;
+  }, [rest, currentScope, syncScope]);
 
   useEffect(() => {
     alive.current = true;
     void refresh();
-    const timer = setInterval(() => void refresh(true), 3000);
+    const stopPolling = startPolling(() => void refresh(true), 3000);
     const unsubscribe = subscribe?.(() => void refresh(true));
     return () => {
       alive.current = false;
       ++request.current;
-      clearInterval(timer);
+      pendingRead.current = null;
+      operation.current = null;
+      stopPolling();
       unsubscribe?.();
     };
-  }, [refresh, subscribe]);
+  }, [refresh, subscribe, startPolling]);
 
   const mutate = useCallback(async (path: string, body: unknown, action: string, success?: string): Promise<boolean> => {
+    if (!alive.current) return false;
+    const capturedScope = syncScope();
     if (operation.current) return false;
-    const capturedScope = getScopeKey?.() ?? "local";
-    if (capturedScope !== scope.current) {
-      setError("The active Hermes connection changed. Review the current schedule before trying again.");
+    if (!isCurrent()) {
+      setError("Refresh the current schedule before making a change.");
       await refresh();
       return false;
     }
-    operation.current = true;
+    const currentOperation = { scope: capturedScope };
+    operation.current = currentOperation;
     ++request.current;
+    pendingRead.current = null;
+    ready.current = false;
     setBusy(action);
     setLoading(false);
     setError(null);
     setNotice(null);
-    let failure: unknown;
+    const current = () => alive.current && operation.current === currentOperation && capturedScope === scope.current && capturedScope === currentScope();
     try {
       const response = await rest<BoardResponse>(path, { method: "POST", body, timeoutMs: 30000 });
-      if (!alive.current || capturedScope !== (getScopeKey?.() ?? "local")) return false;
-      currentBoard.current = response.board;
-      setBoard(response.board);
+      if (!current()) return false;
+      const nextBoard = boardFrom(response, false);
+      ready.current = true;
+      setBoard(nextBoard);
       setConnectionError(null);
       if (success) setNotice(success);
       return true;
     } catch (caught) {
-      failure = caught;
+      if (!current()) return false;
+      // Hold the write lock until the recovery read settles. A timed-out request
+      // may already have committed, and another edit must not race this reload.
+      setBusy("Refreshing schedule");
+      const recovered = await refresh(true, true);
+      if (current()) {
+        setError(isStaleError(caught)
+          ? recovered
+            ? "Someone changed this schedule while you were working. The current version is loaded. Review it, then try your change again."
+            : "Someone changed this schedule while you were working. The current version could not be loaded. Refresh before making another change."
+          : errorMessage(caught));
+      }
       return false;
     } finally {
-      operation.current = false;
-      if (alive.current) {
+      if (current()) {
+        operation.current = null;
         setBusy(null);
-        if (failure) {
-          // A timeout can leave a successful server write. Reload before another edit.
-          await refresh(true);
-          setError(isStaleError(failure)
-            ? "Someone changed this schedule while you were working. The current version is loaded. Review it, then try your change again."
-            : errorMessage(failure));
-        } else if (capturedScope !== (getScopeKey?.() ?? "local")) {
-          await refresh();
+        if (refreshAfterWrite.current) {
+          refreshAfterWrite.current = false;
+          void refresh(true);
         }
+      } else if (alive.current && capturedScope !== currentScope()) {
+        void refresh();
       }
     }
-  }, [rest, getScopeKey, refresh]);
+  }, [rest, isCurrent, currentScope, syncScope, refresh]);
 
-  return { board, loading, busy, error, connectionError, notice, refresh, mutate, setError, setNotice };
+  return { board, loading, busy, error, connectionError, notice, refresh, mutate, isCurrent, setError, setNotice };
 }

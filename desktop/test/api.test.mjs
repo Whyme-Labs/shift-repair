@@ -36,6 +36,15 @@ test("native SDK transport errors decode structured backend details", () => {
   assert.equal(normalizeSdkError(new Error("Connection refused")).message, "Connection refused");
 });
 
+test("IPC-wrapped HTTP errors preserve status without relying on an Error subclass", () => {
+  const normalized = normalizeSdkError({ message: 'Error invoking remote method: Error: 409: {"detail":{"code":"stale_revision","message":"The schedule changed."}}' });
+  assert.equal(normalized.status, 409);
+  assert.equal(normalized.message, "The schedule changed.");
+  assert.equal(isStaleError({ status: 409, message: "The schedule changed." }), true);
+  assert.equal(isStaleError(new ApiError("The revision limit was exceeded.", 422, "invalid_input")), false);
+  assert.equal(isStaleError(new Error("This roster has a qualification conflict.")), false);
+});
+
 test("HTTP failures and invalid response bodies cannot look like successful board reads", async () => {
   const badBody = createFetchRest("/api/plugins/shiftrepair", async () => new Response("proxy unavailable", { status: 502 }));
   await assert.rejects(badBody("/board"), /HTTP 502/);

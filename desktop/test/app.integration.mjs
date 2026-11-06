@@ -15,6 +15,11 @@ let dom, createRoot, root, container, backend, dataDir, base, rest;
 let exported = [];
 const project = fileURLToPath(new URL("../../", import.meta.url));
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const deferred = () => {
+  let resolve, reject;
+  const promise = new Promise((done, fail) => { resolve = done; reject = fail; });
+  return { promise, resolve, reject };
+};
 
 async function waitFor(check, message, timeout = 7000) {
   const deadline = Date.now() + timeout;
@@ -185,4 +190,155 @@ test("delayed reads from an old connection cannot replace the current profile vi
   assert.equal(container.textContent.includes(first.roster.name), false);
   await waitFor(() => container.textContent.includes("Second profile board"), "Polling should load the current scope", 5000);
   assert.equal(container.textContent.includes(first.roster.name), false);
+});
+
+test("Undo follows the real restore chain after its audit history has multiple entries", async () => {
+  let board = (await rest("/board")).board;
+  let count = 0;
+  while (board.can_undo && count++ < 100) board = (await rest("/undo", { method: "POST", body: { expected_revision: board.revision } })).board;
+  assert.equal(board.can_undo, false);
+  assert.ok(board.history.length > 1, "Audit history intentionally remains after exhausting Undo");
+  await mount();
+  assert.equal(button("Undo").disabled, true);
+  assert.match(button("Undo").title, /No earlier version/);
+});
+
+test("slow reads are coalesced so polling cannot starve the first response", async () => {
+  const snapshot = await rest("/board");
+  const pending = deferred();
+  let reads = 0, tick;
+  const adapter = async () => ++reads === 1 ? pending.promise : snapshot;
+  const startPolling = (refresh) => { tick = refresh; return () => {}; };
+  await act(async () => { root.render(React.createElement(ShiftRepairApp, { rest: adapter, saveFile: async () => "saved", mode: "preview", startPolling })); });
+  await act(async () => { tick(); tick(); tick(); });
+  assert.equal(reads, 1, "Only one request may be in flight for a scope");
+  await act(async () => { pending.resolve(snapshot); });
+  await waitFor(() => container.textContent.includes(snapshot.board.roster.name), "The first slow response should render");
+  await act(async () => { tick(); });
+  assert.equal(reads, 2, "Polling resumes after the previous request completes");
+});
+
+test("failed writes keep all mutation controls locked until their recovery read completes", async () => {
+  const snapshot = await rest("/board");
+  const recovery = deferred();
+  let reads = 0, writes = 0;
+  const adapter = async (path) => {
+    if (path === "/board") return ++reads === 1 ? snapshot : recovery.promise;
+    writes++;
+    throw { status: 409, code: "stale_revision", message: "The schedule changed." };
+  };
+  await mount(adapter);
+  await click(button("Find a repair"));
+  await waitFor(() => container.textContent.includes("Refreshing schedule"), "Recovery should remain a busy operation");
+  assert.equal(button("Find a repair").disabled, true);
+  assert.equal(button("Import project CSV").disabled, true);
+  assert.equal(button("Reset example").disabled, true);
+  await act(async () => { button("Find a repair").click(); });
+  assert.equal(writes, 1);
+  await act(async () => { recovery.resolve(snapshot); });
+  await waitFor(() => container.textContent.includes("The current version is loaded"), "Only a successful recovery may claim the current version is loaded");
+  assert.equal(button("Find a repair").disabled, false);
+});
+
+test("failed recovery reads do not claim a fresh board and block writes until a manual refresh", async () => {
+  const snapshot = await rest("/board");
+  let reads = 0;
+  const adapter = async (path) => {
+    if (path === "/board") {
+      if (++reads === 2) throw new Error("Connection lost during recovery");
+      return snapshot;
+    }
+    throw { status: 409, code: "stale_revision", message: "The schedule changed." };
+  };
+  await mount(adapter);
+  await click(button("Find a repair"));
+  await waitFor(() => container.textContent.includes("current version could not be loaded"), "An unsuccessful recovery must be described honestly");
+  assert.equal(button("Find a repair").disabled, true);
+  assert.equal(button("Refresh").disabled, false);
+  await click(button("Refresh"));
+  await waitFor(() => !button("Find a repair").disabled, "A successful explicit refresh should restore editing");
+});
+
+test("late mutation errors from a previous scope cannot appear on the new board", async () => {
+  const first = await rest("/board");
+  const second = structuredClone(first);
+  second.board.roster.name = "Current profile after write";
+  const oldWrite = deferred();
+  let scope = "old", tick;
+  const adapter = async (path) => path === "/board" ? scope === "old" ? first : second : oldWrite.promise;
+  const startPolling = (refresh) => { tick = refresh; return () => {}; };
+  await mount(adapter, { getScopeKey: () => scope, startPolling });
+  await click(button("Find a repair"));
+  scope = "new";
+  await act(async () => { tick(); });
+  await waitFor(() => container.textContent.includes(second.board.roster.name), "The new scope should load without waiting for an old write");
+  await act(async () => { oldWrite.reject(new Error("Failure from the old profile")); });
+  assert.equal(container.textContent.includes("Failure from the old profile"), false);
+  assert.equal(button("Find a repair").disabled, false);
+});
+
+test("rapid export clicks share one explicit operation and block repair controls until it completes", async () => {
+  const snapshot = await rest("/demo", { method: "POST", body: {} });
+  const file = await rest("/export");
+  const pending = deferred();
+  let exports = 0;
+  const adapter = async (path) => path.startsWith("/export") ? (exports++, pending.promise) : snapshot;
+  await mount(adapter);
+  const exportButton = button("Export schedule");
+  await act(async () => { exportButton.click(); exportButton.click(); });
+  assert.equal(exports, 1);
+  assert.equal(button("Find a repair").disabled, true);
+  await act(async () => { pending.resolve(file); });
+  await waitFor(() => exported.length === 1, "The explicit export should complete once");
+  assert.equal(button("Find a repair").disabled, false);
+});
+
+test("late file reads cannot overwrite a later selection or pasted CSV", async () => {
+  await mount();
+  await click(button("Import project CSV"));
+  const picker = container.querySelector("input[type='file']");
+  const field = container.querySelector("textarea");
+  const oldFile = deferred();
+  const selectFile = async (file) => {
+    Object.defineProperty(picker, "files", { configurable: true, value: [file] });
+    await act(async () => { picker.dispatchEvent(new dom.window.Event("change", { bubbles: true })); });
+  };
+  await selectFile({ size: 16, text: () => oldFile.promise });
+  assert.equal(button("Import project").disabled, true);
+  await selectFile({ size: 16, text: async () => "newer project CSV" });
+  await waitFor(() => field.value === "newer project CSV", "The latest selected file should populate the form");
+  await act(async () => { oldFile.resolve("older project CSV"); });
+  assert.equal(field.value, "newer project CSV");
+  const third = deferred();
+  await selectFile({ size: 16, text: () => third.promise });
+  await act(async () => {
+    Object.getOwnPropertyDescriptor(dom.window.HTMLTextAreaElement.prototype, "value").set.call(field, "pasted project CSV");
+    field.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+  });
+  await act(async () => { third.resolve("late selected CSV"); });
+  assert.equal(field.value, "pasted project CSV");
+});
+
+test("keyboard tabs retain valid panel relationships and move focus", async () => {
+  await mount();
+  const schedule = button("Schedule");
+  const availability = button("Availability & limits");
+  for (const tab of [schedule, availability]) assert.ok(document.getElementById(tab.getAttribute("aria-controls")), "Every tab must reference an existing panel");
+  await act(async () => {
+    schedule.focus();
+    schedule.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+  });
+  assert.equal(document.activeElement, availability);
+  assert.equal(availability.getAttribute("aria-selected"), "true");
+  assert.equal(document.getElementById(availability.getAttribute("aria-controls")).hidden, false);
+  await act(async () => { availability.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "Home", bubbles: true })); });
+  assert.equal(document.activeElement, schedule);
+  assert.equal(schedule.getAttribute("aria-selected"), "true");
+});
+
+test("an unknown board after a connection failure never offers an accidental reset", async () => {
+  await mount(async () => { throw new Error("Offline"); });
+  assert.match(container.textContent, /Your schedule could not be loaded/);
+  assert.equal(button("Open the example week"), undefined);
+  assert.ok(button("Try loading again"));
 });

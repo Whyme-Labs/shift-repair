@@ -1,8 +1,8 @@
 // src/plugin.tsx
-import { Dialog, DialogContent, DialogDescription, DialogTitle, gatewayActivationEpoch, host, ROUTES_AREA, SIDEBAR_NAV_AREA, useGatewayActivationEpoch, useValue } from "@hermes/plugin-sdk";
+import { Dialog, DialogContent, DialogDescription, DialogTitle, host as host2, ROUTES_AREA, SIDEBAR_NAV_AREA, useGatewayActivationEpoch, useValue } from "@hermes/plugin-sdk";
 
 // src/App.tsx
-import { useRef as useRef3, useState as useState3 } from "react";
+import { useEffect as useEffect4, useId as useId2, useRef as useRef4, useState as useState3 } from "react";
 
 // src/model.ts
 var isoDate = (value) => /* @__PURE__ */ new Date(`${value}T12:00:00Z`);
@@ -202,35 +202,48 @@ var ApiError = class extends Error {
     this.name = "ApiError";
   }
 };
+var ScopeChangedError = class extends Error {
+  constructor() {
+    super("The active Hermes connection changed. Refresh the current schedule before trying again.");
+    this.name = "ScopeChangedError";
+  }
+};
 function errorMessage(error) {
   if (error instanceof Error && error.message) return error.message;
+  if (error && typeof error === "object" && "message" in error && typeof error.message === "string" && error.message) return error.message;
   if (typeof error === "string" && error) return error;
   return "The request could not be completed. Check the connection and try again.";
 }
 function isStaleError(error) {
-  return error instanceof ApiError && error.status === 409 || /stale|revision|changed since|conflict/i.test(errorMessage(error));
+  if (error && typeof error === "object") {
+    const info = error;
+    if (Number(info.status ?? info.statusCode) === 409 || info.code === "stale_revision" || info.code === "stale_candidate") return true;
+  }
+  return /\b(?:stale revision|stale candidate|candidate is stale)\b/i.test(errorMessage(error));
 }
 function normalizeSdkError(error) {
   const message = errorMessage(error);
+  const structuredStatus = error && typeof error === "object" && "statusCode" in error ? Number(error.statusCode) : NaN;
+  const textualStatus = message.match(/(?:^|:\s*)([45]\d\d):\s/);
+  const status = Number.isInteger(structuredStatus) && structuredStatus >= 400 && structuredStatus < 600 ? structuredStatus : textualStatus ? Number(textualStatus[1]) : void 0;
   const start = message.indexOf("{");
   if (start >= 0) {
     try {
       const data = JSON.parse(message.slice(start));
-      if (data.detail?.message) {
-        const status = error && typeof error === "object" && "statusCode" in error ? Number(error.statusCode) : void 0;
+      if (typeof data.detail?.message === "string" && data.detail.message) {
         return new ApiError(data.detail.message, status, data.detail.code);
       }
     } catch {
     }
   }
-  return error instanceof Error ? error : new Error(message);
+  return status ? new ApiError(message, status) : error instanceof Error ? error : new Error(message);
 }
 
 // src/Forms.tsx
-import { useState } from "react";
+import { useEffect as useEffect2, useRef as useRef2, useState } from "react";
 
 // src/Modal.tsx
-import { createContext, useContext, useEffect, useRef } from "react";
+import { createContext, useContext, useEffect, useId, useRef } from "react";
 import { jsx as jsx3, jsxs as jsxs3 } from "react/jsx-runtime";
 var ModalContext = createContext(void 0);
 function Modal(props) {
@@ -239,6 +252,7 @@ function Modal(props) {
 }
 function LocalDialog({ title, children, onClose }) {
   const ref = useRef(null);
+  const titleId = useId();
   useEffect(() => {
     const dialog = ref.current;
     if (dialog && !dialog.open) dialog.showModal();
@@ -246,12 +260,12 @@ function LocalDialog({ title, children, onClose }) {
       if (dialog?.open) dialog.close();
     };
   }, []);
-  return /* @__PURE__ */ jsxs3("dialog", { ref, className: "sr-modal", "aria-labelledby": "sr-dialog-title", onCancel: (event) => {
+  return /* @__PURE__ */ jsxs3("dialog", { ref, className: "sr-modal", "aria-labelledby": titleId, onCancel: (event) => {
     event.preventDefault();
     onClose();
   }, children: [
     /* @__PURE__ */ jsxs3("div", { className: "sr-modal-heading", children: [
-      /* @__PURE__ */ jsx3("h2", { id: "sr-dialog-title", children: title }),
+      /* @__PURE__ */ jsx3("h2", { id: titleId, children: title }),
       /* @__PURE__ */ jsx3("button", { type: "button", className: "sr-icon-button", "aria-label": "Close dialog", onClick: onClose, children: /* @__PURE__ */ jsx3(Icon, { name: "close" }) })
     ] }),
     children
@@ -269,6 +283,13 @@ function CoverForm({ board, busy, requestError, onClose, onAdd }) {
   const [availableDays, setAvailableDays] = useState([]);
   const [capacity, setCapacity] = useState(1);
   const [error, setError] = useState("");
+  const alive = useRef2(false);
+  useEffect2(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
   const toggle = (current, value) => current.includes(value) ? current.filter((item) => item !== value) : [...current, value];
   return /* @__PURE__ */ jsx4(Modal, { title: "Add qualified cover", onClose, children: /* @__PURE__ */ jsxs4("form", { onSubmit: async (event) => {
     event.preventDefault();
@@ -278,7 +299,7 @@ function CoverForm({ board, busy, requestError, onClose, onAdd }) {
     }
     setError("");
     const saved = await onAdd({ id: personId(name, roster.people.map((person) => person.id)), name: name.trim(), roles: selectedRoles, available_days: availableDays, max_assignments: capacity });
-    if (saved) onClose();
+    if (saved && alive.current) onClose();
   }, children: [
     /* @__PURE__ */ jsx4("p", { className: "sr-form-intro", children: "Enter a real person and confirm their qualifications and availability. Adding cover changes the rules. Solve again to review the repair." }),
     /* @__PURE__ */ jsxs4("label", { className: "sr-field", children: [
@@ -320,43 +341,68 @@ function CoverForm({ board, busy, requestError, onClose, onAdd }) {
 function ImportForm({ board, busy, mode, requestError, onClose, onImport }) {
   const [content, setContent] = useState("");
   const [error, setError] = useState("");
+  const [reading, setReading] = useState(false);
+  const readRequest = useRef2(0);
+  const alive = useRef2(false);
+  useEffect2(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+      ++readRequest.current;
+    };
+  }, []);
   return /* @__PURE__ */ jsx4(Modal, { title: "Import project CSV", onClose, children: /* @__PURE__ */ jsxs4("form", { onSubmit: async (event) => {
     event.preventDefault();
+    if (reading) return;
     if (!content.trim()) {
       setError("Choose a project CSV or paste its content first.");
       return;
     }
     setError("");
     const saved = await onImport(content);
-    if (saved) onClose();
+    if (saved && alive.current) onClose();
   }, children: [
     /* @__PURE__ */ jsx4("p", { className: "sr-form-intro", children: "A ShiftRepair project CSV includes people, qualifications, availability, positions and the current schedule. A schedule-only export cannot be imported as a project." }),
     mode === "preview" && /* @__PURE__ */ jsxs4("label", { className: "sr-field", children: [
       "Choose a project CSV",
       /* @__PURE__ */ jsx4("input", { type: "file", accept: ".csv,text/csv", disabled: busy, onChange: async (event) => {
+        const ticket = ++readRequest.current;
         const file = event.target.files?.[0];
+        setReading(false);
         if (!file) return;
+        setContent("");
         if (file.size > 1024 * 1024) {
           setError("The CSV is too large. Use a file smaller than 1 MB.");
           return;
         }
+        setError("");
+        setReading(true);
+        const current = () => alive.current && ticket === readRequest.current;
         try {
-          setContent(await file.text());
-          setError("");
+          const text = await file.text();
+          if (current()) setContent(text);
         } catch {
-          setError("This file could not be read. Try pasting its content.");
+          if (current()) setError("This file could not be read. Try pasting its content.");
+        } finally {
+          if (current()) setReading(false);
         }
       } })
     ] }),
+    reading && /* @__PURE__ */ jsx4("p", { className: "sr-form-note", role: "status", children: "Reading project CSV\u2026" }),
     /* @__PURE__ */ jsxs4("label", { className: "sr-field", children: [
       mode === "preview" ? "Or paste CSV content" : "Paste project CSV content",
-      /* @__PURE__ */ jsx4("textarea", { value: content, onChange: (event) => setContent(event.target.value), rows: 9, placeholder: "Paste the full project CSV here", disabled: busy, spellCheck: false, maxLength: 1024 * 1024 })
+      /* @__PURE__ */ jsx4("textarea", { value: content, onChange: (event) => {
+        ++readRequest.current;
+        setReading(false);
+        setContent(event.target.value);
+        setError("");
+      }, rows: 9, placeholder: "Paste the full project CSV here", disabled: busy, spellCheck: false, maxLength: 1024 * 1024 })
     ] }),
     board && /* @__PURE__ */ jsx4("p", { className: "sr-form-note", children: "Importing replaces this board's current content and creates a new revision. You can undo it." }),
     (error || requestError) && /* @__PURE__ */ jsx4("p", { className: "sr-error-text", role: "alert", children: error || requestError }),
     /* @__PURE__ */ jsxs4("div", { className: "sr-modal-actions", children: [
       /* @__PURE__ */ jsx4("button", { type: "button", className: "sr-button", onClick: onClose, disabled: busy, children: "Cancel" }),
-      /* @__PURE__ */ jsx4("button", { type: "submit", className: "sr-button sr-button-primary", disabled: busy || !content.trim(), children: busy ? "Importing\u2026" : "Import project" })
+      /* @__PURE__ */ jsx4("button", { type: "submit", className: "sr-button sr-button-primary", disabled: busy || reading || !content.trim(), children: busy ? "Importing\u2026" : "Import project" })
     ] })
   ] }) });
 }
@@ -550,111 +596,175 @@ function Schedule({ board, preview, busy, change }) {
 var styles_default = '.sr-app {\n  --sr-text: var(--ui-text-secondary);\n  --sr-muted: var(--ui-text-tertiary);\n  --sr-faint: var(--ui-text-quaternary);\n  --sr-border: var(--ui-stroke-secondary);\n  --sr-accent: var(--ui-accent);\n  --sr-soft: color-mix(in srgb, var(--sr-text) 3%, transparent);\n  --sr-accent-soft: color-mix(in srgb, var(--sr-accent) 8%, transparent);\n  --sr-accent-border: color-mix(in srgb, var(--sr-accent) 30%, var(--sr-border));\n  color: var(--sr-text);\n  font-family: inherit;\n  font-size: 14px;\n  line-height: 1.5;\n  min-height: 100%;\n  text-align: left;\n  isolation: isolate;\n}\n.sr-app *, .sr-app *::before, .sr-app *::after { box-sizing: border-box; }\n.sr-app button, .sr-app input, .sr-app select, .sr-app textarea { font: inherit; color: inherit; }\n.sr-app button { cursor: pointer; }\n.sr-app button:disabled { cursor: not-allowed; opacity: .48; }\n.sr-app button:focus-visible, .sr-app input:focus-visible, .sr-app select:focus-visible, .sr-app textarea:focus-visible, .sr-app [tabindex]:focus-visible { outline: 2px solid var(--sr-accent); outline-offset: 3px; }\n.sr-app h1, .sr-app h2, .sr-app p { margin: 0; }\n.sr-app svg { flex-shrink: 0; vertical-align: middle; }\n.sr-app .sr-header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 22px 32px; border-bottom: 1px solid var(--sr-border); }\n.sr-app .sr-brand { display: flex; align-items: center; gap: 12px; }\n.sr-app .sr-brand > div:last-child { display: flex; flex-direction: column; gap: 1px; }\n.sr-app .sr-brand strong { font-size: 17px; letter-spacing: -.5px; }\n.sr-app .sr-brand span { font-size: 11px; color: var(--sr-muted); }\n.sr-app .sr-mark { display: grid; grid-template-columns: repeat(2, 10px); gap: 3px; padding: 8px; border: 1px solid var(--sr-accent-border); border-radius: 10px; background: var(--sr-accent-soft); transform: rotate(-4deg); }\n.sr-app .sr-mark span { width: 10px; height: 10px; border-radius: 2px; background: var(--sr-accent); opacity: .85; }\n.sr-app .sr-mark span:nth-child(2) { transform: translate(2px, -2px); opacity: .35; }\n.sr-app .sr-header-meta { display: flex; align-items: center; gap: 12px; }\n.sr-app .sr-environment { border: 1px solid var(--sr-border); border-radius: 5px; padding: 3px 8px; font-size: 11px; color: var(--sr-muted); }\n.sr-app .sr-main { max-width: 1660px; margin: 0 auto; padding: 30px 32px 50px; }\n.sr-app .sr-heading-row { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-bottom: 26px; }\n.sr-app .sr-eyebrow { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.6px; color: var(--sr-muted); margin-bottom: 7px; }\n.sr-app .sr-heading-row h1 { font-size: clamp(23px, 2.1vw, 31px); letter-spacing: -1.1px; line-height: 1.2; font-weight: 650; }\n.sr-app .sr-heading-row p { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: var(--sr-muted); font-size: 12px; margin-top: 11px; }\n.sr-app .sr-separator { color: var(--sr-faint); padding: 0 2px; }\n.sr-app .sr-revision { display: inline-flex; align-items: center; gap: 3px; border: 0; padding: 0; background: transparent; font-size: 12px; color: var(--sr-muted); }\n.sr-app .sr-revision:hover { color: var(--sr-accent); }\n.sr-app .sr-heading-actions { display: flex; align-items: center; gap: 8px; }\n.sr-app .sr-button { display: inline-flex; justify-content: center; align-items: center; gap: 7px; border: 1px solid var(--sr-border); border-radius: 7px; padding: 9px 13px; background: transparent; font-size: 12px; font-weight: 550; line-height: 1.5; white-space: nowrap; transition: background-color .15s, border-color .15s; }\n.sr-app .sr-button:hover:not(:disabled) { background: var(--sr-soft); border-color: var(--sr-muted); }\n.sr-app .sr-button-primary { background: color-mix(in srgb, var(--sr-accent) 13%, transparent); color: var(--sr-accent); border-color: color-mix(in srgb, var(--sr-accent) 45%, transparent); font-weight: 650; }\n.sr-app .sr-button-primary:hover:not(:disabled) { background: color-mix(in srgb, var(--sr-accent) 20%, transparent); border-color: var(--sr-accent); }\n.sr-app .sr-button-subtle { padding: 6px 8px; border-color: transparent; color: var(--sr-accent); }\n.sr-app .sr-button-quiet { border-color: transparent; font-weight: 450; color: var(--sr-muted); }\n.sr-app .sr-button-wide { width: 100%; }\n.sr-app .sr-icon-button { display: inline-flex; justify-content: center; align-items: center; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 6px; color: var(--sr-muted); background: transparent; flex-shrink: 0; }\n.sr-app .sr-icon-button:hover { background: var(--sr-soft); color: var(--sr-text); }\n.sr-app .sr-workspace { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 24px; align-items: start; }\n.sr-app .sr-board-column { min-width: 0; }\n.sr-app .sr-board-card { border: 1px solid var(--sr-border); border-radius: 12px; overflow: hidden; }\n.sr-app .sr-board-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; border-bottom: 1px solid var(--sr-border); padding: 0 18px; min-height: 57px; }\n.sr-app .sr-board-count { font-size: 11px; color: var(--sr-muted); white-space: nowrap; }\n.sr-app .sr-tabs { display: flex; align-items: stretch; align-self: stretch; gap: 20px; }\n.sr-app .sr-tabs button { display: flex; align-items: center; gap: 7px; background: transparent; border: 0; border-bottom: 2px solid transparent; color: var(--sr-muted); padding: 16px 0 14px; font-size: 12px; white-space: nowrap; }\n.sr-app .sr-tabs button[aria-selected="true"] { color: var(--sr-accent); border-bottom-color: var(--sr-accent); font-weight: 650; }\n.sr-app .sr-view-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 18px; min-height: 56px; background: var(--sr-soft); border-bottom: 1px solid var(--sr-border); }\n.sr-app .sr-view-bar p { font-size: 11px; color: var(--sr-muted); max-width: 570px; }\n.sr-app .sr-segmented { display: inline-flex; padding: 2px; border: 1px solid var(--sr-border); border-radius: 6px; flex-shrink: 0; }\n.sr-app .sr-segmented button { background: transparent; border: 0; border-radius: 4px; padding: 4px 8px; font-size: 10px; color: var(--sr-muted); }\n.sr-app .sr-segmented button[aria-pressed="true"] { background: var(--sr-accent-soft); color: var(--sr-accent); font-weight: 650; }\n.sr-app .sr-table-scroll { overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; }\n.sr-app table { width: 100%; border-collapse: collapse; }\n.sr-app .sr-schedule { min-width: 780px; table-layout: fixed; }\n.sr-app .sr-schedule th, .sr-app .sr-schedule td { border-right: 1px solid var(--sr-border); border-bottom: 1px solid var(--sr-border); }\n.sr-app .sr-schedule tr > :last-child { border-right: 0; }\n.sr-app .sr-schedule tbody tr:last-child > * { border-bottom: 0; }\n.sr-app .sr-schedule thead th { padding: 14px 5px 12px; text-align: center; font-weight: 400; }\n.sr-app .sr-schedule thead th span { display: block; color: var(--sr-muted); font-size: 10px; text-transform: uppercase; letter-spacing: .5px; }\n.sr-app .sr-schedule thead th strong { display: block; font-size: 18px; font-weight: 500; margin-top: 2px; }\n.sr-app .sr-schedule .sr-row-heading { width: 82px; text-align: left; padding: 13px 12px; background: var(--sr-soft); }\n.sr-app .sr-schedule thead .sr-row-heading { font-size: 10px; color: var(--sr-muted); }\n.sr-app .sr-schedule tbody th strong { display: block; font-size: 12px; font-weight: 550; }\n.sr-app .sr-shift-label { display: inline-block; color: var(--sr-muted); font-size: 9px; font-weight: 650; letter-spacing: .5px; margin-bottom: 2px; }\n.sr-app .sr-schedule td { padding: 7px 5px; vertical-align: top; height: 85px; }\n.sr-app .sr-assignment { position: relative; border: 1px solid transparent; border-radius: 6px; background: var(--sr-soft); padding: 11px 6px 10px; min-height: 66px; }\n.sr-app .sr-assignment + .sr-assignment { margin-top: 6px; }\n.sr-app .sr-assignment-main { display: flex; align-items: center; gap: 6px; }\n.sr-app .sr-assignment-main strong { font-weight: 550; font-size: 11px; word-break: break-word; padding-right: 3px; }\n.sr-app .sr-avatar { width: 22px; height: 22px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; border-radius: 50%; font-size: 10px; font-weight: 600; background: color-mix(in srgb, var(--sr-text) 8%, transparent); color: var(--sr-muted); }\n.sr-app .sr-assignment-detail { display: flex; align-items: center; gap: 3px; font-size: 9px; line-height: 1.4; margin-top: 6px; color: var(--sr-muted); }\n.sr-app .sr-assignment-changed { background: var(--sr-accent-soft); border-color: var(--sr-accent-border); }\n.sr-app .sr-assignment-changed .sr-assignment-main strong, .sr-app .sr-assignment-changed .sr-assignment-detail { color: var(--sr-accent); }\n.sr-app .sr-assignment-invalid { border-color: var(--sr-muted); border-style: dashed; background: color-mix(in srgb, var(--sr-text) 7%, transparent); }\n.sr-app .sr-assignment-invalid .sr-assignment-detail { font-weight: 600; color: var(--sr-text); }\n.sr-app .sr-pin { position: absolute; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; right: 1px; bottom: 1px; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--sr-muted); opacity: .3; }\n.sr-app .sr-pin:hover:not(:disabled), .sr-app .sr-pin:focus-visible, .sr-app .sr-pin.sr-pinned { opacity: 1; color: var(--sr-accent); background: var(--sr-accent-soft); }\n.sr-app .sr-pin:disabled:not(.sr-pinned) { opacity: .15; }\n.sr-app .sr-no-slot { display: block; text-align: center; color: var(--sr-faint); padding: 15px 0; }\n.sr-app .sr-table-footer { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 18px; border-top: 1px solid var(--sr-border); font-size: 10px; color: var(--sr-muted); }\n.sr-app .sr-legend { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; }\n.sr-app .sr-legend span { display: flex; align-items: center; gap: 5px; }\n.sr-app .sr-legend i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }\n.sr-app .sr-legend-change { background: var(--sr-accent-soft); border: 1px solid var(--sr-accent); }\n.sr-app .sr-legend-issue { background: var(--sr-soft); border: 1px dashed var(--sr-muted); }\n.sr-app .sr-rules-card { margin-top: 16px; padding: 17px 18px 18px; border: 1px solid var(--sr-border); border-radius: 10px; }\n.sr-app .sr-rules-title { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }\n.sr-app .sr-rules-title > svg { color: var(--sr-accent); }\n.sr-app .sr-rules-title h2 { font-size: 12px; font-weight: 600; }\n.sr-app .sr-rules { display: flex; flex-wrap: wrap; gap: 7px; }\n.sr-app .sr-rules span { font-size: 10px; padding: 4px 8px; border: 1px solid var(--sr-border); border-radius: 5px; color: var(--sr-muted); background: var(--sr-soft); }\n.sr-app .sr-demo-note { display: flex; align-items: center; gap: 13px; padding: 19px 0 14px; }\n.sr-app .sr-demo-note-icon { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: var(--sr-accent-soft); color: var(--sr-accent); flex-shrink: 0; }\n.sr-app .sr-demo-note > div { flex: 1; }\n.sr-app .sr-demo-note strong { font-size: 11px; font-weight: 600; }\n.sr-app .sr-demo-note p { font-size: 11px; color: var(--sr-muted); margin-top: 2px; }\n.sr-app .sr-board-bottom { display: flex; justify-content: space-between; align-items: center; gap: 12px; border-top: 1px solid var(--sr-border); padding-top: 15px; font-size: 9px; color: var(--sr-muted); }\n.sr-app .sr-board-bottom > div { display: flex; flex-wrap: wrap; gap: 14px; }\n.sr-app .sr-board-bottom button { padding: 0; background: transparent; border: 0; font-size: 10px; color: var(--sr-muted); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, var(--sr-muted) 40%, transparent); }\n.sr-app .sr-board-bottom button:hover { color: var(--sr-accent); }\n.sr-app .sr-repair-panel { border: 1px solid var(--sr-border); border-radius: 12px; padding: 22px; position: sticky; top: 16px; }\n.sr-app .sr-panel-eyebrow { display: flex; align-items: center; gap: 8px; color: var(--sr-accent); font-size: 11px; font-weight: 600; margin-bottom: 25px; }\n.sr-app .sr-repair-panel h2 { font-size: 22px; font-weight: 550; line-height: 1.25; letter-spacing: -.7px; margin: 13px 0 12px; }\n.sr-app .sr-panel-description { font-size: 12px; color: var(--sr-muted); line-height: 1.7; }\n.sr-app .sr-panel-illustration { display: grid; grid-template-columns: repeat(2, 34px); gap: 5px; margin: 8px 0 23px; transform: rotate(-5deg); transform-origin: center; width: 73px; }\n.sr-app .sr-panel-illustration span { height: 34px; border: 1px solid var(--sr-border); border-radius: 6px; background: var(--sr-soft); }\n.sr-app .sr-panel-illustration .sr-tile-active { display: flex; align-items: center; justify-content: center; border-color: var(--sr-accent-border); background: var(--sr-accent-soft); color: var(--sr-accent); transform: translate(-3px, 2px); }\n.sr-app .sr-current-valid { display: flex; align-items: flex-start; gap: 6px; font-size: 11px; color: var(--sr-accent); margin: 20px 0; }\n.sr-app .sr-status-badge { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--sr-border); border-radius: 5px; padding: 4px 7px; font-size: 10px; line-height: 1.4; font-weight: 550; color: var(--sr-muted); }\n.sr-app .sr-status-good { color: var(--sr-accent); border-color: var(--sr-accent-border); background: var(--sr-accent-soft); }\n.sr-app .sr-status-caution { color: var(--sr-text); background: var(--sr-soft); border-style: dashed; }\n.sr-app .sr-repair-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; border-top: 1px solid var(--sr-border); border-bottom: 1px solid var(--sr-border); padding: 15px 0; margin: 20px 0 0; }\n.sr-app .sr-repair-stats > div { display: flex; flex-direction: column; gap: 2px; }\n.sr-app .sr-repair-stats strong { font-size: 20px; font-weight: 500; letter-spacing: -.6px; }\n.sr-app .sr-repair-stats span { font-size: 9px; color: var(--sr-muted); }\n.sr-app .sr-diff-list { list-style: none; padding: 0; margin: 0 0 22px; }\n.sr-app .sr-diff-list li { padding: 14px 0; border-bottom: 1px solid var(--sr-border); }\n.sr-app .sr-diff-date { color: var(--sr-muted); font-size: 10px; margin-bottom: 7px; }\n.sr-app .sr-diff-people { display: flex; align-items: center; gap: 12px; font-size: 13px; }\n.sr-app .sr-diff-people > span { color: var(--sr-muted); text-decoration: line-through; text-decoration-color: var(--sr-border); }\n.sr-app .sr-diff-people > svg { color: var(--sr-muted); }\n.sr-app .sr-diff-people strong { font-weight: 600; color: var(--sr-accent); }\n.sr-app .sr-panel-actions { margin-top: 20px; display: flex; flex-direction: column; gap: 6px; }\n.sr-app .sr-caption { color: var(--sr-muted); font-size: 10px; line-height: 1.6; }\n.sr-app .sr-repair-panel > .sr-caption { margin-top: 12px; }\n.sr-app .sr-explainer { display: grid; grid-template-columns: 20px 1fr; gap: 14px 10px; margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--sr-border); }\n.sr-app .sr-explainer > span { color: var(--sr-faint); font-size: 10px; font-variant-numeric: tabular-nums; }\n.sr-app .sr-explainer p { font-size: 11px; color: var(--sr-muted); }\n.sr-app .sr-explainer strong { font-weight: 550; color: var(--sr-text); }\n.sr-app .sr-attention-block { margin: 20px 0; }\n.sr-app .sr-attention-block ul { padding-left: 17px; font-size: 11px; color: var(--sr-muted); margin: 12px 0 0; }\n.sr-app .sr-attention-block li + li { margin-top: 7px; }\n.sr-app .sr-attention-block > p { margin-top: 8px; font-size: 11px; }\n.sr-app .sr-conflict-list { padding: 0; list-style: none; margin: 20px 0; }\n.sr-app .sr-conflict-list li { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; border-top: 1px solid var(--sr-border); padding: 13px 0; line-height: 1.6; }\n.sr-app .sr-conflict-list svg { margin-top: 2px; color: var(--sr-muted); }\n.sr-app .sr-availability { min-width: 790px; }\n.sr-app .sr-availability th, .sr-app .sr-availability td { border-bottom: 1px solid var(--sr-border); padding: 11px 10px; text-align: center; }\n.sr-app .sr-availability tbody tr:last-child > * { border-bottom: 0; }\n.sr-app .sr-availability th:first-child { text-align: left; padding-left: 18px; width: 170px; }\n.sr-app .sr-availability thead th { color: var(--sr-muted); font-size: 10px; font-weight: 450; background: var(--sr-soft); }\n.sr-app .sr-availability thead th span { display: block; }\n.sr-app .sr-availability thead th small { display: block; font-size: 10px; margin-top: 2px; }\n.sr-app .sr-person-name { display: flex; align-items: center; gap: 9px; }\n.sr-app .sr-person-name strong { display: block; font-size: 12px; font-weight: 550; }\n.sr-app .sr-person-name small { display: block; font-size: 9px; color: var(--sr-muted); font-weight: 450; margin-top: 2px; }\n.sr-app .sr-availability-toggle { border: 1px solid var(--sr-border); border-radius: 6px; width: 31px; height: 29px; display: inline-flex; align-items: center; justify-content: center; padding: 0; background: transparent; }\n.sr-app .sr-is-available { color: var(--sr-accent); background: var(--sr-accent-soft); border-color: var(--sr-accent-border); }\n.sr-app .sr-is-unavailable { color: var(--sr-muted); background: var(--sr-soft); border-style: dashed; }\n.sr-app .sr-availability-toggle:hover:not(:disabled) { border-color: var(--sr-text); }\n.sr-app .sr-limit { display: flex; align-items: center; justify-content: center; gap: 8px; }\n.sr-app .sr-limit select { width: 43px; padding: 4px 3px 4px 8px; border: 1px solid var(--sr-border); border-radius: 5px; font-size: 11px; background: transparent; }\n.sr-app .sr-limit > span { font-size: 9px; color: var(--sr-muted); }\n.sr-app .sr-banner { display: flex; align-items: center; gap: 10px; border: 1px solid var(--sr-border); border-radius: 8px; padding: 10px 13px; margin-bottom: 22px; font-size: 12px; }\n.sr-app .sr-banner p { flex: 1; }\n.sr-app .sr-banner-success { background: var(--sr-accent-soft); border-color: var(--sr-accent-border); color: var(--sr-accent); }\n.sr-app .sr-banner-error { border-style: dashed; background: var(--sr-soft); }\n.sr-app .sr-empty { display: flex; flex-direction: column; align-items: center; text-align: center; max-width: 660px; margin: 55px auto 80px; padding: 24px; }\n.sr-app .sr-empty h1 { font-size: clamp(28px, 3.5vw, 42px); font-weight: 550; letter-spacing: -1.7px; line-height: 1.15; margin: 9px 0 18px; }\n.sr-app .sr-empty > p { color: var(--sr-muted); font-size: 14px; line-height: 1.8; max-width: 490px; }\n.sr-app .sr-empty-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; margin: 28px 0 20px; }\n.sr-app .sr-empty-actions .sr-button { padding: 11px 15px; }\n.sr-app .sr-empty-art { display: grid; grid-template-columns: repeat(3, 45px); gap: 6px; margin: 0 0 38px; transform: rotate(-5deg); }\n.sr-app .sr-empty-art > div { height: 45px; border: 1px solid var(--sr-border); border-radius: 7px; background: var(--sr-soft); }\n.sr-app .sr-empty-art > div:nth-child(3), .sr-app .sr-empty-art > div:nth-child(9) { opacity: .4; }\n.sr-app .sr-empty-art .sr-empty-art-active { border-color: var(--sr-accent-border); background: var(--sr-accent-soft); transform: translate(-6px, 6px); color: var(--sr-accent); display: flex; align-items: center; justify-content: center; }\n.sr-app .sr-spinner { width: 22px; height: 22px; border: 2px solid var(--sr-accent-border); border-top-color: var(--sr-accent); border-radius: 50%; animation: sr-spin .8s linear infinite; }\n.sr-app .sr-solving { padding-top: 25px; }\n.sr-app .sr-solving > p { color: var(--sr-muted); font-size: 12px; line-height: 1.7; margin-bottom: 18px; }\n.sr-app .sr-operation { display: flex; align-items: center; gap: 8px; position: fixed; bottom: 20px; right: 25px; padding: 9px 13px; border: 1px solid var(--sr-border); border-radius: 8px; background: var(--sr-surface, Canvas); color: var(--sr-text); font-size: 11px; z-index: 10; }\n.sr-app .sr-operation .sr-spinner { height: 14px; width: 14px; }\n.sr-app .sr-modal { width: min(570px, calc(100vw - 36px)); max-height: calc(100vh - 60px); border: 1px solid var(--sr-border); border-radius: 14px; padding: 25px; margin: auto; color: var(--sr-text); background: var(--sr-surface, Canvas); box-shadow: 0 24px 85px color-mix(in srgb, var(--sr-text) 18%, transparent); }\n.sr-app .sr-modal::backdrop { background: color-mix(in srgb, var(--sr-text) 22%, transparent); backdrop-filter: blur(3px); }\n.sr-app .sr-modal-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }\n.sr-app .sr-native-modal { width: min(520px, calc(100vw - 80px)); }\n.sr-app .sr-modal-heading h2 { font-size: 21px; font-weight: 550; letter-spacing: -.5px; }\n.sr-app .sr-form-intro { color: var(--sr-muted); font-size: 12px; line-height: 1.7; margin-bottom: 21px; }\n.sr-app .sr-field { display: flex; flex-direction: column; gap: 7px; margin: 17px 0; font-size: 12px; font-weight: 550; }\n.sr-app .sr-field input, .sr-app .sr-field textarea, .sr-app .sr-field select { width: 100%; border: 1px solid var(--sr-border); border-radius: 6px; background: var(--sr-soft); padding: 9px 11px; font-weight: 450; }\n.sr-app .sr-field input::placeholder, .sr-app .sr-field textarea::placeholder { color: var(--sr-muted); }\n.sr-app .sr-field textarea { resize: vertical; font-family: ui-monospace, monospace; font-size: 11px; }\n.sr-app .sr-fieldset { padding: 0; margin: 18px 0; border: 0; }\n.sr-app .sr-fieldset legend { font-size: 12px; font-weight: 550; padding: 0; margin-bottom: 10px; }\n.sr-app .sr-check-options { display: flex; gap: 10px 18px; flex-wrap: wrap; }\n.sr-app .sr-check-options label { display: flex; align-items: center; gap: 7px; font-size: 12px; }\n.sr-app input[type="checkbox"] { accent-color: var(--sr-accent); }\n.sr-app .sr-day-options { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }\n.sr-app .sr-day-options label { display: flex; align-items: center; flex-direction: column; gap: 5px; padding: 9px 4px; border: 1px solid var(--sr-border); border-radius: 6px; cursor: pointer; }\n.sr-app .sr-day-options label:has(input:checked) { border-color: var(--sr-accent-border); background: var(--sr-accent-soft); }\n.sr-app .sr-day-options span { font-size: 10px; text-align: center; }\n.sr-app .sr-day-options small { display: block; color: var(--sr-muted); }\n.sr-app .sr-modal-actions { display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--sr-border); padding-top: 18px; margin-top: 23px; }\n.sr-app .sr-error-text { font-size: 12px; padding: 10px; border-left: 2px solid var(--sr-text); margin: 12px 0; background: var(--sr-soft); }\n.sr-app .sr-form-note { font-size: 11px; color: var(--sr-muted); }\n.sr-app .sr-history { margin: 20px 0; padding: 0; list-style: none; max-height: 350px; overflow-y: auto; }\n.sr-app .sr-history li { display: flex; align-items: center; gap: 13px; padding: 12px 0; border-bottom: 1px solid var(--sr-border); }\n.sr-app .sr-history-number { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: var(--sr-soft); border-radius: 50%; font-size: 11px; }\n.sr-app .sr-history li > div { flex: 1; }\n.sr-app .sr-history strong { display: block; font-size: 12px; font-weight: 550; }\n.sr-app .sr-history time { display: block; color: var(--sr-muted); font-size: 10px; margin-top: 3px; }\n.sr-app .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }\n@keyframes sr-spin { to { transform: rotate(360deg); } }\n@media (max-width: 1250px) {\n  .sr-app .sr-main { padding: 25px 20px 40px; }\n  .sr-app .sr-workspace { gap: 16px; grid-template-columns: minmax(0, 1fr) 290px; }\n  .sr-app .sr-repair-panel { padding: 19px; }\n  .sr-app .sr-board-count { display: none; }\n  .sr-app .sr-board-bottom { align-items: flex-start; flex-direction: column; }\n  .sr-app .sr-demo-note { align-items: flex-start; flex-wrap: wrap; }\n  .sr-app .sr-demo-note > .sr-button { margin-left: 42px; }\n}\n@media (max-width: 1040px) {\n  .sr-app .sr-workspace { grid-template-columns: minmax(0, 1fr); }\n  .sr-app .sr-repair-panel { position: static; }\n  .sr-app .sr-panel-illustration { float: right; margin: 0 12px 12px 25px; }\n  .sr-app .sr-panel-eyebrow { margin-bottom: 16px; }\n  .sr-app .sr-explainer { grid-template-columns: 20px 1fr; max-width: 650px; }\n  .sr-app .sr-diff-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; }\n}\n@media (max-width: 650px) {\n  .sr-app .sr-header { padding: 16px; }\n  .sr-app .sr-brand span { font-size: 10px; }\n  .sr-app .sr-environment { display: none; }\n  .sr-app .sr-main { padding: 22px 12px 40px; }\n  .sr-app .sr-heading-row { align-items: flex-start; flex-direction: column; gap: 17px; }\n  .sr-app .sr-heading-actions { width: 100%; }\n  .sr-app .sr-heading-actions .sr-button:last-child { flex: 1; }\n  .sr-app .sr-board-toolbar { padding: 0 12px; }\n  .sr-app .sr-tabs { gap: 18px; }\n  .sr-app .sr-tabs button { font-size: 11px; }\n  .sr-app .sr-view-bar { align-items: flex-start; flex-direction: column; gap: 8px; padding: 12px; }\n  .sr-app .sr-table-footer { align-items: flex-start; flex-direction: column; gap: 9px; padding: 12px; }\n  .sr-app .sr-table-footer > span { font-size: 9px; }\n  .sr-app .sr-empty { margin: 25px auto; padding: 15px 8px; }\n  .sr-app .sr-empty > p { font-size: 12px; }\n  .sr-app .sr-empty-art { margin-bottom: 30px; }\n  .sr-app .sr-empty-actions { flex-direction: column; width: 100%; }\n  .sr-app .sr-empty-actions .sr-button { width: 100%; }\n  .sr-app .sr-empty .sr-caption { max-width: 260px; }\n  .sr-app .sr-banner { flex-wrap: wrap; }\n  .sr-app .sr-banner p { flex-basis: 75%; }\n  .sr-app .sr-diff-list { grid-template-columns: 1fr; }\n  .sr-app .sr-modal { padding: 20px; }\n  .sr-app .sr-day-options { gap: 4px; }\n}\n@media (prefers-reduced-motion: reduce) { .sr-app *, .sr-app *::before, .sr-app *::after { animation-duration: 0s !important; transition-duration: 0s !important; } }\n';
 
 // src/useBoard.ts
-import { useCallback, useEffect as useEffect2, useRef as useRef2, useState as useState2 } from "react";
-function useBoard({ rest, getScopeKey, subscribe: subscribe2 }) {
+import { useCallback, useEffect as useEffect3, useRef as useRef3, useState as useState2 } from "react";
+var browserPolling = (refresh, intervalMs) => {
+  const timer = setInterval(refresh, intervalMs);
+  return () => clearInterval(timer);
+};
+function boardFrom(response, allowEmpty) {
+  if (response && Object.hasOwn(response, "board")) {
+    if (allowEmpty && response.board === null) return null;
+    if (response.board && typeof response.board.id === "string" && Number.isInteger(response.board.revision) && response.board.roster && typeof response.board.can_undo === "boolean") return response.board;
+  }
+  throw new Error("The backend returned an unsupported board response. Check that the agent and Desktop parts of ShiftRepair use the same version.");
+}
+function useBoard({ rest, getScopeKey, subscribe, startPolling = browserPolling }) {
   const [board, setBoard] = useState2(null);
   const [loading, setLoading] = useState2(true);
   const [busy, setBusy] = useState2(null);
   const [error, setError] = useState2(null);
   const [connectionError, setConnectionError] = useState2(null);
   const [notice, setNotice] = useState2(null);
-  const alive = useRef2(true);
-  const operation = useRef2(false);
-  const request = useRef2(0);
-  const scope = useRef2(getScopeKey?.() ?? "local");
-  const currentBoard = useRef2(null);
-  const refresh = useCallback(async (quiet = false) => {
-    if (operation.current) return;
-    const nextScope = getScopeKey?.() ?? "local";
-    if (scope.current !== nextScope) {
-      scope.current = nextScope;
-      currentBoard.current = null;
+  const alive = useRef3(false);
+  const operation = useRef3(null);
+  const request = useRef3(0);
+  const scope = useRef3(getScopeKey?.() ?? "local");
+  const ready = useRef3(false);
+  const pendingRead = useRef3(null);
+  const refreshAfterWrite = useRef3(false);
+  const currentScope = useCallback(() => getScopeKey?.() ?? "local", [getScopeKey]);
+  const isCurrent = useCallback(() => alive.current && ready.current && scope.current === currentScope(), [currentScope]);
+  const syncScope = useCallback(() => {
+    const next = currentScope();
+    if (scope.current !== next) {
+      scope.current = next;
+      ++request.current;
+      pendingRead.current = null;
+      operation.current = null;
+      refreshAfterWrite.current = false;
+      ready.current = false;
       setBoard(null);
+      setBusy(null);
       setNotice(null);
       setError(null);
-      quiet = false;
+      setConnectionError(null);
+      setLoading(true);
     }
+    return next;
+  }, [currentScope]);
+  const refresh = useCallback((quiet = false, recovery = false) => {
+    if (!alive.current) return Promise.resolve(false);
+    const nextScope = syncScope();
+    if (operation.current && !recovery) {
+      refreshAfterWrite.current = true;
+      return Promise.resolve(false);
+    }
+    if (pendingRead.current?.scope === nextScope) return pendingRead.current.promise;
     const ticket = ++request.current;
     if (!quiet) setLoading(true);
-    try {
-      const response = await rest("/board");
-      if (!alive.current || ticket !== request.current || nextScope !== (getScopeKey?.() ?? "local")) return;
-      currentBoard.current = response.board;
-      setBoard(response.board);
-      setConnectionError(null);
-    } catch (error2) {
-      if (alive.current && ticket === request.current) setConnectionError(errorMessage(error2));
-    } finally {
-      if (alive.current && ticket === request.current) setLoading(false);
-    }
-  }, [rest, getScopeKey]);
-  useEffect2(() => {
+    const current = () => alive.current && ticket === request.current && nextScope === scope.current && nextScope === currentScope();
+    const promise = (async () => {
+      try {
+        const response = await rest("/board");
+        if (!current()) return false;
+        const nextBoard = boardFrom(response, true);
+        ready.current = true;
+        setBoard(nextBoard);
+        setConnectionError(null);
+        return true;
+      } catch (caught) {
+        if (current()) {
+          ready.current = false;
+          setConnectionError(errorMessage(caught));
+        }
+        return false;
+      } finally {
+        if (pendingRead.current?.ticket === ticket) pendingRead.current = null;
+        if (current()) setLoading(false);
+      }
+    })();
+    pendingRead.current = { scope: nextScope, ticket, promise };
+    return promise;
+  }, [rest, currentScope, syncScope]);
+  useEffect3(() => {
     alive.current = true;
     void refresh();
-    const timer = setInterval(() => void refresh(true), 3e3);
-    const unsubscribe = subscribe2?.(() => void refresh(true));
+    const stopPolling = startPolling(() => void refresh(true), 3e3);
+    const unsubscribe = subscribe?.(() => void refresh(true));
     return () => {
       alive.current = false;
       ++request.current;
-      clearInterval(timer);
+      pendingRead.current = null;
+      operation.current = null;
+      stopPolling();
       unsubscribe?.();
     };
-  }, [refresh, subscribe2]);
+  }, [refresh, subscribe, startPolling]);
   const mutate = useCallback(async (path, body, action, success) => {
+    if (!alive.current) return false;
+    const capturedScope = syncScope();
     if (operation.current) return false;
-    const capturedScope = getScopeKey?.() ?? "local";
-    if (capturedScope !== scope.current) {
-      setError("The active Hermes connection changed. Review the current schedule before trying again.");
+    if (!isCurrent()) {
+      setError("Refresh the current schedule before making a change.");
       await refresh();
       return false;
     }
-    operation.current = true;
+    const currentOperation = { scope: capturedScope };
+    operation.current = currentOperation;
     ++request.current;
+    pendingRead.current = null;
+    ready.current = false;
     setBusy(action);
     setLoading(false);
     setError(null);
     setNotice(null);
-    let failure;
+    const current = () => alive.current && operation.current === currentOperation && capturedScope === scope.current && capturedScope === currentScope();
     try {
       const response = await rest(path, { method: "POST", body, timeoutMs: 3e4 });
-      if (!alive.current || capturedScope !== (getScopeKey?.() ?? "local")) return false;
-      currentBoard.current = response.board;
-      setBoard(response.board);
+      if (!current()) return false;
+      const nextBoard = boardFrom(response, false);
+      ready.current = true;
+      setBoard(nextBoard);
       setConnectionError(null);
       if (success) setNotice(success);
       return true;
     } catch (caught) {
-      failure = caught;
+      if (!current()) return false;
+      setBusy("Refreshing schedule");
+      const recovered = await refresh(true, true);
+      if (current()) {
+        setError(isStaleError(caught) ? recovered ? "Someone changed this schedule while you were working. The current version is loaded. Review it, then try your change again." : "Someone changed this schedule while you were working. The current version could not be loaded. Refresh before making another change." : errorMessage(caught));
+      }
       return false;
     } finally {
-      operation.current = false;
-      if (alive.current) {
+      if (current()) {
+        operation.current = null;
         setBusy(null);
-        if (failure) {
-          await refresh(true);
-          setError(isStaleError(failure) ? "Someone changed this schedule while you were working. The current version is loaded. Review it, then try your change again." : errorMessage(failure));
-        } else if (capturedScope !== (getScopeKey?.() ?? "local")) {
-          await refresh();
+        if (refreshAfterWrite.current) {
+          refreshAfterWrite.current = false;
+          void refresh(true);
         }
+      } else if (alive.current && capturedScope !== currentScope()) {
+        void refresh();
       }
     }
-  }, [rest, getScopeKey, refresh]);
-  return { board, loading, busy, error, connectionError, notice, refresh, mutate, setError, setNotice };
+  }, [rest, isCurrent, currentScope, syncScope, refresh]);
+  return { board, loading, busy, error, connectionError, notice, refresh, mutate, isCurrent, setError, setNotice };
 }
 
 // src/App.tsx
 import { Fragment as Fragment4, jsx as jsx7, jsxs as jsxs7 } from "react/jsx-runtime";
 function ShiftRepairApp(props) {
-  const { board, loading, busy, error, connectionError, notice, refresh, mutate, setError, setNotice } = useBoard(props);
+  const { board, loading, busy, error, connectionError, notice, refresh, mutate, isCurrent, setError, setNotice } = useBoard(props);
   const [tab, setTab] = useState3("schedule");
   const [view, setView] = useState3("proposal");
   const [modal, setModal] = useState3(null);
   const [exporting, setExporting] = useState3(false);
-  const scheduleTab = useRef3(null);
-  const availabilityTab = useRef3(null);
-  const blocked = !!busy || exporting;
+  const alive = useRef4(false);
+  const exportLock = useRef4(false);
+  const instanceId = useId2();
+  const scheduleTab = useRef4(null);
+  const availabilityTab = useRef4(null);
+  const working = !!busy || exporting;
+  const blocked = working || loading || !!connectionError;
   const validCandidate = !!board?.candidate && board.candidate.base_revision === board.revision && isValidResult(board.candidate.result);
   const preview = validCandidate && view === "proposal";
+  useEffect4(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
   const changeTabWithKeyboard = (event) => {
     if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
     event.preventDefault();
@@ -681,19 +791,22 @@ function ShiftRepairApp(props) {
     }
   };
   const download = async (kind) => {
-    if (blocked) return;
+    if (blocked || exportLock.current || !isCurrent()) return;
+    exportLock.current = true;
     const scope = props.getScopeKey?.();
+    const current = () => alive.current && scope === props.getScopeKey?.();
     setExporting(true);
     setError(null);
     try {
       const file = await props.rest(kind === "project" ? "/export?kind=project" : "/export");
-      if (scope !== props.getScopeKey?.()) throw new Error("The active connection changed. Download again from the current board.");
+      if (!current()) return;
       const result = await props.saveFile(file);
-      if (result === "saved") setNotice(kind === "project" ? "Project CSV exported with people, availability and rules." : "Current schedule exported as CSV.");
+      if (current() && result === "saved") setNotice(kind === "project" ? "Project CSV exported with people, availability and rules." : "Current schedule exported as CSV.");
     } catch (caught) {
-      setError(errorMessage(caught));
+      if (current()) setError(errorMessage(caught));
     } finally {
-      setExporting(false);
+      exportLock.current = false;
+      if (alive.current) setExporting(false);
     }
   };
   return /* @__PURE__ */ jsx7(ModalContext.Provider, { value: props.dialog, children: /* @__PURE__ */ jsxs7("div", { className: "sr-app", children: [
@@ -713,14 +826,14 @@ function ShiftRepairApp(props) {
       ] }),
       /* @__PURE__ */ jsxs7("div", { className: "sr-header-meta", children: [
         /* @__PURE__ */ jsx7("span", { className: "sr-environment", children: props.mode === "desktop" ? "Hermes plugin" : "Local preview" }),
-        /* @__PURE__ */ jsx7("button", { type: "button", className: "sr-icon-button", "aria-label": "Refresh schedule", disabled: blocked || loading, onClick: () => void refresh(), children: /* @__PURE__ */ jsx7(Icon, { name: "refresh" }) })
+        /* @__PURE__ */ jsx7("button", { type: "button", className: "sr-icon-button", "aria-label": "Refresh schedule", disabled: working || loading, onClick: () => void refresh(), children: /* @__PURE__ */ jsx7(Icon, { name: "refresh" }) })
       ] })
     ] }),
     /* @__PURE__ */ jsxs7("main", { className: "sr-main", children: [
       (error || connectionError) && /* @__PURE__ */ jsxs7("div", { className: "sr-banner sr-banner-error", role: "alert", children: [
         /* @__PURE__ */ jsx7(Icon, { name: "alert" }),
         /* @__PURE__ */ jsx7("p", { children: error || `Connection problem. ${connectionError}` }),
-        /* @__PURE__ */ jsx7("button", { type: "button", className: "sr-button sr-button-subtle", disabled: blocked, onClick: () => {
+        /* @__PURE__ */ jsx7("button", { type: "button", className: "sr-button sr-button-subtle", disabled: working || loading, onClick: () => {
           setError(null);
           void refresh();
         }, children: "Refresh" }),
@@ -735,6 +848,11 @@ function ShiftRepairApp(props) {
         /* @__PURE__ */ jsx7("div", { className: "sr-spinner" }),
         /* @__PURE__ */ jsx7("h1", { children: "Opening your schedule" }),
         /* @__PURE__ */ jsx7("p", { children: "Reading the current board from the ShiftRepair backend." })
+      ] }) : !board && connectionError ? /* @__PURE__ */ jsxs7("section", { className: "sr-empty", children: [
+        /* @__PURE__ */ jsx7(Icon, { name: "alert", width: "32", height: "32" }),
+        /* @__PURE__ */ jsx7("h1", { children: "Your schedule could not be loaded" }),
+        /* @__PURE__ */ jsx7("p", { children: "Reconnect to the ShiftRepair backend, then refresh to read the current board." }),
+        /* @__PURE__ */ jsx7("div", { className: "sr-empty-actions", children: /* @__PURE__ */ jsx7("button", { type: "button", className: "sr-button sr-button-primary", disabled: working || loading, onClick: () => void refresh(), children: "Try loading again" }) })
       ] }) : !board ? /* @__PURE__ */ jsxs7("section", { className: "sr-empty", children: [
         /* @__PURE__ */ jsxs7("div", { className: "sr-empty-art", "aria-hidden": "true", children: [
           /* @__PURE__ */ jsx7("div", {}),
@@ -778,7 +896,7 @@ function ShiftRepairApp(props) {
             ] })
           ] }),
           /* @__PURE__ */ jsxs7("div", { className: "sr-heading-actions", children: [
-            /* @__PURE__ */ jsxs7("button", { type: "button", className: "sr-button", onClick: () => void mutate("/undo", { expected_revision: board.revision }, "Restoring revision", "Previous content restored as a new revision."), disabled: blocked || board.history.length < 2, children: [
+            /* @__PURE__ */ jsxs7("button", { type: "button", className: "sr-button", onClick: () => void mutate("/undo", { expected_revision: board.revision }, "Restoring revision", "Previous content restored as a new revision."), disabled: blocked || !board.can_undo, title: board.can_undo ? "Restore the previous schedule and rules" : "No earlier version is available to restore", children: [
               /* @__PURE__ */ jsx7(Icon, { name: "undo", width: "16", height: "16" }),
               "Undo"
             ] }),
@@ -793,11 +911,11 @@ function ShiftRepairApp(props) {
             /* @__PURE__ */ jsxs7("section", { className: "sr-board-card", children: [
               /* @__PURE__ */ jsxs7("div", { className: "sr-board-toolbar", children: [
                 /* @__PURE__ */ jsxs7("div", { className: "sr-tabs", role: "tablist", "aria-label": "Schedule and team rules", children: [
-                  /* @__PURE__ */ jsxs7("button", { ref: scheduleTab, type: "button", role: "tab", tabIndex: tab === "schedule" ? 0 : -1, "aria-selected": tab === "schedule", "aria-controls": "sr-schedule-panel", id: "sr-schedule-tab", onKeyDown: changeTabWithKeyboard, onClick: () => setTab("schedule"), children: [
+                  /* @__PURE__ */ jsxs7("button", { ref: scheduleTab, type: "button", role: "tab", tabIndex: tab === "schedule" ? 0 : -1, "aria-selected": tab === "schedule", "aria-controls": `${instanceId}-schedule-panel`, id: `${instanceId}-schedule-tab`, onKeyDown: changeTabWithKeyboard, onClick: () => setTab("schedule"), children: [
                     /* @__PURE__ */ jsx7(Icon, { name: "calendar", width: "16", height: "16" }),
                     "Schedule"
                   ] }),
-                  /* @__PURE__ */ jsxs7("button", { ref: availabilityTab, type: "button", role: "tab", tabIndex: tab === "availability" ? 0 : -1, "aria-selected": tab === "availability", "aria-controls": "sr-availability-panel", id: "sr-availability-tab", onKeyDown: changeTabWithKeyboard, onClick: () => setTab("availability"), children: [
+                  /* @__PURE__ */ jsxs7("button", { ref: availabilityTab, type: "button", role: "tab", tabIndex: tab === "availability" ? 0 : -1, "aria-selected": tab === "availability", "aria-controls": `${instanceId}-availability-panel`, id: `${instanceId}-availability-tab`, onKeyDown: changeTabWithKeyboard, onClick: () => setTab("availability"), children: [
                     /* @__PURE__ */ jsx7(Icon, { name: "people", width: "16", height: "16" }),
                     "Availability & limits"
                   ] })
@@ -816,7 +934,7 @@ function ShiftRepairApp(props) {
                   /* @__PURE__ */ jsx7("button", { type: "button", "aria-pressed": view === "proposal", onClick: () => setView("proposal"), children: "Proposal" })
                 ] })
               ] }),
-              tab === "schedule" ? /* @__PURE__ */ jsxs7("div", { role: "tabpanel", id: "sr-schedule-panel", "aria-labelledby": "sr-schedule-tab", children: [
+              /* @__PURE__ */ jsx7("div", { role: "tabpanel", id: `${instanceId}-schedule-panel`, "aria-labelledby": `${instanceId}-schedule-tab`, hidden: tab !== "schedule", children: tab === "schedule" && /* @__PURE__ */ jsxs7(Fragment4, { children: [
                 /* @__PURE__ */ jsx7(Schedule, { board, preview, busy: blocked, change: (changes) => void change(changes) }),
                 /* @__PURE__ */ jsxs7("div", { className: "sr-table-footer", children: [
                   /* @__PURE__ */ jsxs7("div", { className: "sr-legend", children: [
@@ -835,7 +953,8 @@ function ShiftRepairApp(props) {
                   ] }),
                   /* @__PURE__ */ jsx7("span", { children: connectionError ? "Connection interrupted" : "Refreshes every 3 seconds" })
                 ] })
-              ] }) : /* @__PURE__ */ jsx7("div", { role: "tabpanel", id: "sr-availability-panel", "aria-labelledby": "sr-availability-tab", children: /* @__PURE__ */ jsx7(Availability, { board, busy: blocked, change: (changes) => void change(changes), addPerson: () => setModal("cover") }) })
+              ] }) }),
+              /* @__PURE__ */ jsx7("div", { role: "tabpanel", id: `${instanceId}-availability-panel`, "aria-labelledby": `${instanceId}-availability-tab`, hidden: tab !== "availability", children: tab === "availability" && /* @__PURE__ */ jsx7(Availability, { board, busy: blocked, change: (changes) => void change(changes), addPerson: () => setModal("cover") }) })
             ] }),
             /* @__PURE__ */ jsxs7("section", { className: "sr-rules-card", "aria-labelledby": "sr-rules-title", children: [
               /* @__PURE__ */ jsxs7("div", { className: "sr-rules-title", children: [
@@ -879,7 +998,7 @@ function ShiftRepairApp(props) {
               /* @__PURE__ */ jsx7("span", { children: "Explicit changes \xB7 reversible revisions" })
             ] })
           ] }),
-          /* @__PURE__ */ jsx7(RepairPanel, { board, busy, solve: () => void solve(), apply: () => {
+          /* @__PURE__ */ jsx7(RepairPanel, { board, busy: busy || (blocked ? "Waiting for current schedule" : null), solve: () => void solve(), apply: () => {
             if (board.candidate) void mutate("/apply", { expected_revision: board.revision, candidate_id: board.candidate.id }, "Applying repair", "Repair applied. The current schedule is updated and checked.");
           }, discard: () => {
             if (board.candidate) void mutate("/discard", { expected_revision: board.revision, candidate_id: board.candidate.id }, "Discarding proposal", "Proposal discarded. The current schedule is unchanged.");
@@ -916,6 +1035,66 @@ function ShiftRepairApp(props) {
   ] }) });
 }
 
+// src/native.ts
+import { gatewayActivationEpoch, host } from "@hermes/plugin-sdk";
+function createNativeBindings(ctx) {
+  let active = true;
+  ctx.onDispose(() => {
+    active = false;
+  });
+  const getScopeKey = () => `${host.state.profile.get()}:${gatewayActivationEpoch()}:${active ? "active" : "disabled"}`;
+  const current = (scope) => active && getScopeKey() === scope;
+  const rest = async (path, options) => {
+    const scope = getScopeKey();
+    if (!active) throw new ScopeChangedError();
+    try {
+      const result = await ctx.rest(path, options);
+      if (!current(scope)) throw new ScopeChangedError();
+      return result;
+    } catch (error) {
+      if (!current(scope)) throw new ScopeChangedError();
+      throw normalizeSdkError(error);
+    }
+  };
+  const saveFile = async (file) => {
+    const scope = getScopeKey();
+    if (!active) return "cancelled";
+    if (!ctx.files?.requestFolder || !ctx.files?.writeText) throw new Error("This Hermes Desktop version does not expose the plugin file save API. Update Desktop or export through the local preview.");
+    const result = await ctx.files.requestFolder();
+    if (!current(scope)) return "cancelled";
+    if (!result.ok) throw new Error(result.message);
+    if (!result.folder) return "cancelled";
+    const basename = file.filename.replace(/[^a-zA-Z0-9._-]/g, "-").slice(0, 120) || "shiftrepair.csv";
+    const stamp = (/* @__PURE__ */ new Date()).toISOString().replace(/[^0-9]/g, "");
+    const filename = `${basename.replace(/\.csv$/i, "")}-${stamp}.csv`;
+    const written = await ctx.files.writeText(result.folder.id, filename, file.content, { exclusive: true });
+    if (!current(scope)) return "cancelled";
+    if (!written.ok) throw new Error(written.message);
+    return "saved";
+  };
+  return {
+    rest,
+    saveFile,
+    getScopeKey,
+    subscribe(refresh) {
+      const scope = getScopeKey();
+      if (!active) return () => {
+      };
+      return ctx.onEvent("plugin.shiftrepair.board.updated", () => {
+        if (current(scope)) refresh();
+      });
+    },
+    startPolling(refresh, intervalMs) {
+      const scope = getScopeKey();
+      if (!active) return () => {
+      };
+      return ctx.setInterval(() => {
+        if (current(scope)) refresh();
+      }, intervalMs);
+    }
+  };
+}
+
 // src/plugin.tsx
 import { jsx as jsx8, jsxs as jsxs8 } from "react/jsx-runtime";
 function NativeDialog({ title, children, onClose }) {
@@ -933,46 +1112,23 @@ function NativeDialog({ title, children, onClose }) {
     ] })
   ] }) }) });
 }
-var scopeKey = () => `${host.state.profile.get()}:${gatewayActivationEpoch()}`;
-var subscribe = (refresh) => host.onEvent("plugin.shiftrepair.board.updated", refresh);
-function NativeApp({ rest, saveFile }) {
-  const profile = useValue(host.state.profile);
+function NativeApp({ bindings }) {
+  const profile = useValue(host2.state.profile);
   const epoch = useGatewayActivationEpoch();
-  return /* @__PURE__ */ jsx8(ShiftRepairApp, { rest, saveFile, mode: "desktop", getScopeKey: scopeKey, subscribe, dialog: NativeDialog }, `${profile}:${epoch}`);
+  return /* @__PURE__ */ jsx8(ShiftRepairApp, { ...bindings, mode: "desktop", dialog: NativeDialog }, `${profile}:${epoch}`);
 }
-async function saveNativeFile(ctx, file) {
-  if (!ctx.files?.requestFolder || !ctx.files?.writeText) throw new Error("This Hermes Desktop version does not expose the plugin file save API. Update Desktop or export through the local preview.");
-  const result = await ctx.files.requestFolder();
-  if (!result.ok) {
-    if (result.error === "cancelled" || result.error === "canceled") return "cancelled";
-    throw new Error(result.message);
-  }
-  if (!result.folder) return "cancelled";
-  const basename = file.filename.replace(/[^a-zA-Z0-9._-]/g, "-").slice(0, 120) || "shiftrepair.csv";
-  const stamp = (/* @__PURE__ */ new Date()).toISOString().replace(/[^0-9]/g, "");
-  const filename = `${basename.replace(/\.csv$/i, "")}-${stamp}.csv`;
-  const written = await ctx.files.writeText(result.folder.id, filename, file.content, { exclusive: true });
-  if (!written.ok) throw new Error(written.message);
-  return "saved";
-}
-var plugin_default = {
+var plugin = {
   id: "shiftrepair",
   name: "ShiftRepair",
   register(ctx) {
-    const rest = async (path, options) => {
-      try {
-        return await ctx.rest(path, options);
-      } catch (error) {
-        throw normalizeSdkError(error);
-      }
-    };
-    const saveFile = (file) => saveNativeFile(ctx, file);
+    const bindings = createNativeBindings(ctx);
     ctx.registerMany([
-      { id: "page", area: ROUTES_AREA, data: { path: "/shiftrepair" }, render: () => /* @__PURE__ */ jsx8(NativeApp, { rest, saveFile }) },
+      { id: "page", area: ROUTES_AREA, data: { path: "/shiftrepair" }, render: () => /* @__PURE__ */ jsx8(NativeApp, { bindings }) },
       { id: "nav", area: SIDEBAR_NAV_AREA, data: { path: "/shiftrepair", label: "ShiftRepair", codicon: "calendar" } }
     ]);
   }
 };
+var plugin_default = plugin;
 export {
   plugin_default as default
 };

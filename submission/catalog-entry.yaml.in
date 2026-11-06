@@ -3,10 +3,11 @@
 # Copy to plugin-catalog/shiftrepair.yaml in the Hermes catalog PR only after validation.
 name: shiftrepair
 title: ShiftRepair
-repo: __REQUIRED_PUBLIC_HTTPS_REPOSITORY_URL__
+repo: https://github.com/Whyme-Labs/shift-repair
+# This repository is currently private. A public clone must be available before submission.
 sha: __REQUIRED_FULL_40_CHARACTER_PLUGIN_RELEASE_COMMIT__
 description: Repair weekly staff schedules with minimum disruption, verified constraints and a shared Desktop board.
-maintainer: __REQUIRED_REPOSITORY_OWNER_OR_MAJOR_CONTRIBUTOR__
+maintainer: wms2537
 tier: community
 category: desktop
 requires_hermes: ">=0.22.7"

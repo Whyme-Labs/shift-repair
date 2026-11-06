@@ -4,11 +4,16 @@ Repair a weekly staff or volunteer schedule after an absence. Keep the accepted
 rules, minimize changed assignments, review the exact difference, and apply the
 repair when it is ready.
 
-This repository contains a working first milestone: a constraint solver,
+This repository contains a working MVP: a constraint solver,
 independent result checker, durable revision store, ten Hermes agent tools,
 native Desktop entry point, and a standalone preview using the same backend.
 It is not yet a submitted marketplace entry. See [verification](docs/VERIFICATION.md)
 for completed checks and the remaining native Desktop smoke test.
+
+Development is tracked in [the release progress issue](https://github.com/Whyme-Labs/shift-repair/issues/1).
+The installable MVP includes normal package installation, a checked native SDK
+contract and independent exact-oracle tests for the repair workflow. See
+[contribution instructions](CONTRIBUTING.md) for the local development checks.
 
 ## Try the working preview
 
@@ -23,6 +28,8 @@ uv pip install --python .venv/bin/python -e '.[preview]'
 Open `http://127.0.0.1:8787`. The server listens only on localhost. The compiled
 preview is included, so Node is needed only to change or rebuild the interface.
 On Windows, use the equivalent executable paths under `.venv/Scripts`.
+For a normal wheel installation and a reproducible release check, follow
+[the installation guide](docs/INSTALL.md).
 
 1. Open the example week.
 2. Open **Availability & limits** and mark Asha unavailable on Monday.
@@ -106,13 +113,15 @@ npm --prefix desktop ci
 npm --prefix desktop run build
 npm --prefix desktop test
 npm --prefix desktop run test:ui
+npm --prefix desktop run test:native
 ```
 
 The project includes a complete small fixture in `examples/cedar-demo.json`,
 a portable project CSV, and a readable schedule CSV. [CSV format](docs/CSV.md)
 explains the difference. [Architecture](docs/ARCHITECTURE.md) describes the
 state transitions and trust boundaries. [Verification](docs/VERIFICATION.md)
-records the actual checks, including an exhaustive 729-assignment oracle.
+records the actual checks, including 40 generated small schedules checked
+against exhaustive enumeration of 36,760 assignments.
 
 Before a catalog PR, validate a clean checkout containing the compiled native
 bundle and excluding virtual environments, `node_modules`, caches and local

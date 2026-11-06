@@ -79,6 +79,7 @@ class RosterService:
         return {
             "id": state.id,
             "revision": state.revision,
+            "can_undo": state.can_undo,
             "roster": roster.model_dump(mode="json"),
             "validation": [item.model_dump(mode="json") for item in check(roster, roster.baseline)],
             "candidate": state.candidate,
@@ -186,13 +187,32 @@ class RosterService:
 
         def transform(state: State) -> Json:
             candidate = self.store.require_candidate(state, candidate_id)
-            result = SolveResult.model_validate(candidate["result"])
+            try:
+                result = SolveResult.model_validate(candidate["result"])
+            except ValidationError as exc:
+                raise ServiceError(
+                    "invalid_repair", "The stored repair is invalid. Solve and review again."
+                ) from exc
             if result.status not in {"OPTIMAL", "FEASIBLE"} or result.assignment is None:
                 raise ServiceError("repair_unresolved", "This result has no valid repair to apply.")
             roster = Roster.model_validate(state.roster)
             violations = check(roster, result.assignment)
             if violations:
                 raise ServiceError("invalid_repair", "The repair failed independent validation.")
+            actual_changes = {
+                (slot_id, old, result.assignment[slot_id])
+                for slot_id, old in roster.baseline.items()
+                if result.assignment[slot_id] != old
+            }
+            reported_changes = {
+                (change.slot_id, change.from_person_id, change.to_person_id)
+                for change in result.changes
+            }
+            if actual_changes != reported_changes:
+                raise ServiceError(
+                    "invalid_repair",
+                    "The stored change list does not match this schedule. Solve and review again.",
+                )
             data = roster.model_dump(mode="json")
             data["baseline"] = result.assignment
             return Roster.model_validate(data).model_dump(mode="json")
