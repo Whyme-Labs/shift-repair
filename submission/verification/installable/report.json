@@ -1,0 +1,207 @@
+{
+  "status": "passed",
+  "source": {
+    "mode": "commit",
+    "base_commit": "c4d1e434bd8dc4bb0aaf1973d17677d578c8b754",
+    "source_sha256": "05a616a695651272de7670765081064008b0affdcc4f49095152c5b744885709",
+    "files": 85
+  },
+  "commands": [
+    {
+      "step": "version-uv",
+      "command": [
+        "uv",
+        "--version"
+      ],
+      "exit_code": 0
+    },
+    {
+      "step": "version-node",
+      "command": [
+        "node",
+        "--version"
+      ],
+      "exit_code": 0
+    },
+    {
+      "step": "version-npm",
+      "command": [
+        "npm",
+        "--version"
+      ],
+      "exit_code": 0
+    },
+    {
+      "step": "frontend-install",
+      "command": [
+        "npm",
+        "ci",
+        "--no-audit",
+        "--no-fund"
+      ],
+      "exit_code": 0
+    },
+    {
+      "step": "frontend-build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit_code": 0
+    },
+    {
+      "step": "build-sdist",
+      "command": [
+        "uv",
+        "build",
+        "--sdist",
+        "--out-dir",
+        "/workspace/scratch/b07e23cd47f9/shiftrepair-release-c4d1e43/dist",
+        "/tmp/shiftrepair-release-93otb450/package-source"
+      ],
+      "exit_code": 0
+    },
+    {
+      "step": "build-wheel-from-sdist",
+      "command": [
+        "uv",
+        "build",
+        "--wheel",
+        "--out-dir",
+        "/workspace/scratch/b07e23cd47f9/shiftrepair-release-c4d1e43/dist",
+        "/workspace/scratch/b07e23cd47f9/shiftrepair-release-c4d1e43/dist/hermes_shiftrepair-0.1.0.tar.gz"
+      ],
+      "exit_code": 0
+    },
+    {
+      "step": "create-venv",
+      "command": [
+        "uv",
+        "venv",
+        "--python",
+        "/workspace/scratch/b07e23cd47f9/shiftrepair/.venv/bin/python",
+        "/tmp/shiftrepair-release-93otb450/installed"
+      ],
+      "exit_code": 0
+    },
+    {
+      "step": "install-base-wheel",
+      "command": [
+        "uv",
+        "pip",
+        "install",
+        "--python",
+        "/tmp/shiftrepair-release-93otb450/installed/bin/python",
+        "/workspace/scratch/b07e23cd47f9/shiftrepair-release-c4d1e43/dist/hermes_shiftrepair-0.1.0-py3-none-any.whl"
+      ],
+      "exit_code": 0
+    },
+    {
+      "step": "check-isolated-import",
+      "command": [
+        "/tmp/shiftrepair-release-93otb450/installed/bin/python",
+        "-c",
+        "import importlib.util,json,shiftrepair; print(json.dumps({'module':shiftrepair.__file__,'uvicorn_present':importlib.util.find_spec('uvicorn') is not None}))"
+      ],
+      "exit_code": 0
+    },
+    {
+      "step": "base-cli-board",
+      "command": [
+        "/tmp/shiftrepair-release-93otb450/installed/bin/shiftrepair",
+        "--data-dir",
+        "/tmp/shiftrepair-release-93otb450/board",
+        "board"
+      ],
+      "exit_code": 0
+    },
+    {
+      "step": "install-preview-extra",
+      "command": [
+        "uv",
+        "pip",
+        "install",
+        "--python",
+        "/tmp/shiftrepair-release-93otb450/installed/bin/python",
+        "/workspace/scratch/b07e23cd47f9/shiftrepair-release-c4d1e43/dist/hermes_shiftrepair-0.1.0-py3-none-any.whl[preview]"
+      ],
+      "exit_code": 0
+    },
+    {
+      "step": "dependency-check",
+      "command": [
+        "uv",
+        "pip",
+        "check",
+        "--python",
+        "/tmp/shiftrepair-release-93otb450/installed/bin/python"
+      ],
+      "exit_code": 0
+    },
+    {
+      "step": "installed-dependencies",
+      "command": [
+        "uv",
+        "pip",
+        "freeze",
+        "--python",
+        "/tmp/shiftrepair-release-93otb450/installed/bin/python"
+      ],
+      "exit_code": 0
+    },
+    {
+      "step": "installed-runtime",
+      "command": [
+        "/tmp/shiftrepair-release-93otb450/installed/bin/python",
+        "-c",
+        "import importlib.metadata as m,json,platform; print(json.dumps({'python':platform.python_version(),'packages':{name:m.version(name) for name in ['hermes-shiftrepair','ortools','pydantic','fastapi','uvicorn']}}))"
+      ],
+      "exit_code": 0
+    },
+    {
+      "step": "installed-cli-persistence",
+      "command": [
+        "/tmp/shiftrepair-release-93otb450/installed/bin/shiftrepair",
+        "--data-dir",
+        "/tmp/shiftrepair-release-93otb450/board",
+        "board"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "toolchain": {
+    "uv": "uv 0.13.5 (x86_64-unknown-linux-gnu)",
+    "node": "v24.22.1",
+    "npm": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n11.9.0"
+  },
+  "rebuilt_assets_match": [
+    "desktop/plugin.js",
+    "preview/index.html",
+    "preview/app.js"
+  ],
+  "distribution_sha256": {
+    "hermes_shiftrepair-0.1.0.tar.gz": "e9580f7368b9ef7691528e4d9b01e30438cf342cc85b13e7d8ed6c1eec0dba2c",
+    "hermes_shiftrepair-0.1.0-py3-none-any.whl": "0ca1b4452bd63353a0c34988204d2ef714c41f886734062e4914be44b31f2f9a"
+  },
+  "installed_smoke": {
+    "python": "3.12.14",
+    "packages": {
+      "hermes-shiftrepair": "0.1.0",
+      "ortools": "9.15.6755",
+      "pydantic": "2.14.3",
+      "fastapi": "0.162.0",
+      "uvicorn": "0.54.0"
+    },
+    "module_origin": "/tmp/shiftrepair-release-93otb450/installed/lib/python3.12/site-packages/shiftrepair/__init__.py",
+    "uvicorn_optional": true,
+    "html_and_js_match_release": true,
+    "solver_status": "OPTIMAL",
+    "changed_assignments": 2,
+    "violations_after_apply": 0,
+    "baseline_unchanged_until_apply": true,
+    "schedule_and_project_export": true,
+    "cli_persistence": true
+  },
+  "source_zip_sha256": "f1184ec9d90b880851c85506c2eba916e1fafd2dd7d3f6fe124b9be615c8a0bf"
+}

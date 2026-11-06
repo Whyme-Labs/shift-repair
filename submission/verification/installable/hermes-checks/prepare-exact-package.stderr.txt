@@ -1,0 +1,8 @@
+Resolved 1 package in 3ms
+   Building hermes-shiftrepair @ file:///workspace/scratch/b07e23cd47f9/shiftrepair-release-c4d1e43/source
+      Built hermes-shiftrepair @ file:///workspace/scratch/b07e23cd47f9/shiftrepair-release-c4d1e43/source
+Prepared 1 package in 1.45s
+Uninstalled 1 package in 2ms
+Installed 1 package in 4ms
+ - hermes-shiftrepair==0.1.0 (from file:///workspace/scratch/b07e23cd47f9/shiftrepair)
+ + hermes-shiftrepair==0.1.0 (from file:///workspace/scratch/b07e23cd47f9/shiftrepair-release-c4d1e43/source)

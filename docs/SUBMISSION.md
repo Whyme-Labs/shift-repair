@@ -183,7 +183,7 @@ It records a real Hermes `PluginManager` and gateway router mount, including
 tool-to-REST and REST-to-tool state sharing. It does not claim the Electron
 renderer or an interactive Desktop session was tested.
 
-### Development checks completed on 6 November
+### Initial MVP checks completed on 6 November
 
 The clean working-tree snapshot passed the actual `hermes plugins doctor --ci`
 command and the actual `hermes plugins validate --install-deps --json` command
@@ -205,6 +205,26 @@ files received an end-of-file blank-line cleanup after the checked snapshot;
 their remaining bytes match, and the other checked files match byte for byte.
 These results support this development milestone. They do not replace the
 pending native Desktop session, recording or release-commit validation.
+
+### Installable MVP checks completed on 6 November
+
+The next implementation snapshot passed 73 Python tests and 20 subtests on
+both Python 3.12.14 and the supported Hermes Python 3.14.9 runtime. The actual
+Hermes doctor passed, and isolated catalog validation with dependency
+installation passed all 16 checks with zero warnings.
+
+A fresh normal-wheel installation served its packaged HTML and JavaScript,
+solved the two-change example, preserved the baseline until Apply, exported
+both CSV formats and retained state for a separate CLI process. A clean npm
+rebuild reproduced all three committed assets byte for byte. Frontend checks
+passed 14 logic/API tests, 13 interaction tests and 8 native adapter tests.
+The SDK projection matches 36 public source anchors in Hermes v0.22.7.
+
+Current reports and exact source fingerprints are in
+`submission/verification/installable/`; `docs/VERIFICATION.md` explains their
+scope and maps the checked source to its GitHub implementation commit. The
+original reports above remain historical. Actual Desktop rendering, file-picker
+operation, media and final public-release validation are still pending.
 
 ## Disclosure for README and PR
 

@@ -1,0 +1,1 @@
+{"python": "3.14.9", "shiftrepair_import": "/workspace/scratch/b07e23cd47f9/shiftrepair-release-c4d1e43/source/shiftrepair/__init__.py", "packages": {"fastapi": "0.133.1", "pydantic": "2.14.1", "ortools": "9.15.6755", "pytest": "9.2.0"}}

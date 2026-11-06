@@ -1,0 +1,5 @@
+Plugin Doctor: 
+/workspace/scratch/b07e23cd47f9/shiftrepair-release-c4d1e43/source
+  manifest: shiftrepair 0.1.0 (standalone)
+  OK: runtime discovery, manifest parsing, import, and registration passed
+  registrations: 10 tool(s), 0 hook(s)
