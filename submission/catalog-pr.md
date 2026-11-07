@@ -26,15 +26,30 @@ It does not claim labor-law compliance, payroll support or rest-period modeling.
 - Pinned plugin commit: `__REQUIRED_40_CHARACTER_COMMIT__`
 - Version: `0.1.0`
 - Minimum Hermes: `>=0.22.7`
-- Runtime test log: `__REQUIRED_RELEASE_VERIFICATION_LINK__`
+- Verification: `__REQUIRED_RELEASE_VERIFICATION_LINK__`
 - Native Desktop screenshots: `__REQUIRED_SCREENSHOT_LINKS__`
 - Working demo under 90 seconds: `__REQUIRED_VIDEO_LINK__`
-- Repository contributor: `wms2537`, with release ownership to confirm before submission.
+- Repository contributor: `wms2537`.
 
-Replace this paragraph with the actual release validation results, including
-Python version, Hermes commit, Python test count, the doctor result and the
-catalog validator result. Do not copy working-tree results onto a different
-release commit without rerunning the checks.
+The native-tested implementation is `3c27bb35693c9fca11fd769a2791643f747d0648`.
+Hermes v0.22.7 (`b200f5bc60e31588ba2cb60e288029c4a54ba5fa`) on macOS 26.2
+loaded all ten tools under its managed Python 3.14.9 runtime. The real doctor
+and catalog validator passed: 16 checks, no warnings, security safe, with
+successful dependency resolution and installation. The Mac development suite
+passed 73 Python tests plus 20 subtests, 14 frontend logic/transport tests,
+13 real-backend UI tests and 8 SDK-adapter tests; 36 upstream SDK anchors match.
+
+The actual native app demonstrated repair, Apply, infeasibility, explicit
+qualified cover, real OS folder selection and CSV export, full-project import,
+light/dark themes and separate profile data. The actual Hermes tool registry
+and native board shared changes in both directions and rejected a stale edit.
+The video is 60.08 seconds and uses fictional data. Model-backed chat, remote
+connection changes and in-flight scope changes were not tested in the real
+host. No such claim is made in the demo. A cold OR-Tools import on this Mac took
+over two minutes; subsequent imports and solves completed promptly.
+
+Final pinned-tree admission: `__REQUIRED_FINAL_ADMISSION_RESULT__`.
+Re-run against the selected pin and replace this line with its actual result.
 
 ## Hermes surfaces
 

@@ -1,38 +1,36 @@
-# Working demo recording plan
+# Native demo record
 
-Target length: 80 to 85 seconds. Record actual Hermes Desktop and chat against
-the released plugin, then trim pauses. This file is a plan, not demo evidence.
-Use the included fictional roster, never a real staff roster.
+[Watch the completed demo](media/shiftrepair-native-demo.mp4): 60.08 seconds,
+H.264, 1280 × 900, captioned, with a silent audio track. Recorded on 8 November
+2026 in the real Hermes v0.22.7 Electron application on macOS. The plugin source
+was exact commit `3c27bb35693c9fca11fd769a2791643f747d0648`.
 
-| Time | Action on screen | Suggested narration |
-| --- | --- | --- |
-| 0 to 7 seconds | Open the native ShiftRepair board with the example loaded | "One absence can break a weekly roster. ShiftRepair repairs it inside Hermes." |
-| 7 to 22 seconds | Ask Hermes to mark the person assigned to the first slot unavailable on that date | "Chat and this board share one versioned schedule. That change now makes the current assignment invalid." |
-| 22 to 38 seconds | Ask Hermes to propose a repair. Show the candidate diff and actual solver status | "The solver minimizes changed assignments. This result is proven optimal, and a separate checker verifies every assignment." |
-| 38 to 48 seconds | Show affected assignments, then click Apply | "I review the exact changes before applying them." |
-| 48 to 66 seconds | Pin an unavailable person to a slot, then solve and show the conflict | "When constraints contradict each other, it explains the conflict. It does not invent availability or silently break the pin." |
-| 66 to 77 seconds | Undo the conflicting change and show the restored valid board | "Edits have revisions and undo history. Stale agent edits cannot overwrite a newer board." |
-| 77 to 85 seconds | Export the valid schedule and show the real project link | "A small scheduling model, a verified repair, and a usable handoff. ShiftRepair for Hermes." |
+All people and schedules are fictional. The native UI calls the actual plugin
+backend. This is a native UI demonstration; no model-backed chat is shown.
 
-## Before recording
+| Time | Actual recorded behavior |
+| --- | --- |
+| 0–8 seconds | Valid eight-person, 28-assignment example in native Hermes |
+| 8–11 seconds | Asha marked unavailable Monday |
+| 11–19 seconds | OPTIMAL two-change proposal, 26 assignments preserved |
+| 19–23 seconds | Review and Apply |
+| 23–25 seconds | Chen also marked unavailable Monday, on the same current rota |
+| 25–34 seconds | INFEASIBLE: two lead positions, only one available qualified lead |
+| 34–40 seconds | Explicit Iris (demo), Lead, Monday, weekly limit one entered in the real Add cover dialog |
+| 40–48 seconds | OPTIMAL one-change proposal, 27 current assignments preserved |
+| 48–53 seconds | Apply and request native CSV export |
+| 53–60 seconds | Successful export notice; real CSV contains 28 assignments and three pins |
 
-Run the scene end to end once on the release build. Select the exact person,
-date and pin from the current fixture and write them into your spoken script.
-Do not depend on a solver choosing a particular staff member when several
-equally optimal schedules exist. Focus on the changed-assignment count and the
-verified result.
+The roster was not reset between cases. The first repair moved Chen to Monday;
+the second repair replaced Chen with Iris on the current accepted rota. The
+recording shows that actual sequence instead of substituting a prepared result.
 
-Use the word "proven" only while the displayed result is OPTIMAL. If the solver
-returns FEASIBLE, say "a valid candidate" and show that minimum disruption is
-not proven. If it returns UNKNOWN, record the honest timeout and retry under
-the published demo settings instead of replacing the UI result in editing.
+Editing removed setup and the wait in the native folder picker. No solver
+result, application state or latency label was replaced. Captions occupy a
+separate band below the complete app image. The raw recording and timing log
+are retained locally; [edit provenance](verification/macos-native-20261108/demo-edit.json)
+records the selected segments. The OS picker image is not published because its
+sidebar contains local machine details. Its successful file is included as
+[the fictional exported schedule](verification/macos-native-20261108/demo-schedule.csv).
 
-Keep the cursor, font and labels readable. Show the real host navigation so a
-judge can tell this is a native plugin. Keep one continuous segment through
-the absence, solve and Apply sequence. Use ordinary cuts for setup and pauses,
-and do not insert mocked tool output, pre-rendered success states or invented
-latency labels.
-
-The API smoke test and standalone preview are development evidence. The final
-competition clip must show the plugin working in Hermes. Capture at least one
-frame with the real plugin version and preserve the uncut recording privately.
+The X post is still pending. This local recording is not a submission receipt.

@@ -1,0 +1,68 @@
+{
+  "source": "<WORKSPACE>/work/native-recording/page@59e27355df85f2acea529d6d3af2b022.webm",
+  "source_start_seconds": 372.30905859375,
+  "segments_relative_to_demo": [
+    [
+      0,
+      52.519
+    ],
+    [
+      185.769,
+      193.292
+    ]
+  ],
+  "output_seconds": 60.042,
+  "editing": "Removed setup and the wait during the native folder picker. No workflow states or solver results were replaced.",
+  "captions": [
+    [
+      0,
+      7.87,
+      "ShiftRepair for Hermes\\NFictional roster \u00b7 native UI demo"
+    ],
+    [
+      7.87,
+      10.527,
+      "Asha is unavailable on Monday."
+    ],
+    [
+      10.527,
+      18.593999999999998,
+      "Proven minimum: 2 changed assignments.\\NThe other 26 stay in place."
+    ],
+    [
+      18.593999999999998,
+      23.2,
+      "Review and apply the exact changes."
+    ],
+    [
+      23.2,
+      25.346,
+      "Now Chen is also unavailable."
+    ],
+    [
+      25.346,
+      33.540000000000006,
+      "Two lead positions. One available lead.\\NThe current rules cannot cover both."
+    ],
+    [
+      33.540000000000006,
+      39.753,
+      "Explicit cover: Iris, qualified for Lead.\\NMonday availability. One assignment."
+    ],
+    [
+      39.753,
+      47.829,
+      "1 change to the current rota.\\N27 assignments stay in place."
+    ],
+    [
+      47.829,
+      53.06899999999999,
+      "Apply and export the reviewed rota."
+    ],
+    [
+      53.06899999999999,
+      60.042,
+      "28 assignments saved to CSV.\\Ngithub.com/Whyme-Labs/shift-repair"
+    ]
+  ]
+}

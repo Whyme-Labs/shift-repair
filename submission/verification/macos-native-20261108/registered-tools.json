@@ -1,0 +1,31 @@
+{
+  "runtime": "Actual Hermes PluginManager and tools.registry.dispatch; no LLM call",
+  "tool_names": [
+    "shiftrepair_apply",
+    "shiftrepair_change",
+    "shiftrepair_discard",
+    "shiftrepair_export",
+    "shiftrepair_get_board",
+    "shiftrepair_import_csv",
+    "shiftrepair_import_roster",
+    "shiftrepair_load_demo",
+    "shiftrepair_solve",
+    "shiftrepair_undo"
+  ],
+  "board_edit_read_by_tool_revision": 6,
+  "tool_add_cover_revision": 7,
+  "stale_edit_error": {
+    "code": "stale_revision",
+    "message": "The schedule changed. Refresh it and review the current revision before retrying."
+  },
+  "stale_edit_preserved_revision_and_availability": true,
+  "solver_status": "OPTIMAL",
+  "changed_assignments": 1,
+  "changes": [
+    {
+      "slot_id": "2026-11-09:AM:lead",
+      "from_person_id": "asha",
+      "to_person_id": "iris-demo"
+    }
+  ]
+}

@@ -1,8 +1,9 @@
 # Verification record
 
-Date: 6 November 2026. Test fixtures contain fictional staff data. The results
-below describe executed local checks, with native rendering and publication
-still separate release gates. No remote CI run is claimed.
+Updated: 8 November 2026. Test fixtures contain fictional staff data. The
+installable MVP checks below date from 6 November; the later Mac sections record
+the preview and real Electron walkthrough. Publication remains pending. No
+remote CI run is claimed.
 
 ## Checked source
 
@@ -169,20 +170,62 @@ records source fingerprints, local check counts and the observed workflow. Its
 directory includes the rendered preview conflict, accepted synthetic schedule
 CSV and check logs with absolute workspace paths redacted.
 
+## Native Mac walkthrough on 8 November
+
+The real Hermes v0.22.7 Electron application was built from the upstream tag
+and run on macOS 26.2, Apple Silicon, in a dedicated development home. Hermes PM
+installed the plugin dependencies into its Python 3.14.9 environment. Both the
+Python plugin and the native Desktop component were enabled through the normal
+activation flow. A foreground local gateway served the app; no system service
+was installed and no OS security setting was weakened.
+
+The loaded source was exact commit
+`3c27bb35693c9fca11fd769a2791643f747d0648`, with source-manifest digest
+`008421eca1a79beeb83eb3264f412b43bed61bcc608bef81deef9b1ee5e5d198`.
+The documentation and media evidence commit does not change that runtime code.
+The real doctor registered all ten tools. Catalog validation at the canonical
+installed path, including successful dependency resolution and installation,
+passed all 16 checks with zero warnings, security `safe` and `host_ready: true`.
+An earlier attempt at a second path collided with the installed package name;
+only the successful canonical-path run is counted.
+
+| Observed native behavior | Result |
+| --- | --- |
+| Asha unavailable Monday | OPTIMAL, two changes; current assignments preserved until Apply |
+| Asha and Chen unavailable Monday | INFEASIBLE, two lead positions and only Ben available; no Apply button |
+| Explicit Iris (demo), Lead, Monday, limit one | OPTIMAL, one change; native Apply accepted the checked result |
+| Actual registered tool and native board | Tool read native edits, added cover and solved; board displayed the proposal; tool read the native Apply result |
+| Stale tool edit | `stale_revision`, with revision and availability unchanged |
+| Native folder picker | Cancel recovered controls; selecting the task export folder saved a real 28-row CSV |
+| Project CSV import | Invalid input displayed an error without mutation; full project export reimported with nine people and the accepted assignments |
+| Profiles | Separate profile had its own eight-person revision 1; returning restored the nine-person default board |
+| Dialogs, keyboard and appearance | Reset cancellation and confirmation, Add cover, import, keyboard tab movement, light and dark themes observed |
+| Narrow window | At 1100 × 820, repair actions fit and the schedule uses horizontal scrolling |
+
+The [native evidence](../submission/verification/macos-native-20261108/report.json)
+includes the doctor, admission result and dependency log, source manifest,
+registered-tool reports, CSV receipt and recording provenance. The
+[60-second video](../submission/media/shiftrepair-native-demo.mp4) shows actual
+native UI actions and solver results. Setup and the wait in the native save
+dialog were removed; workflow states were not replaced. Captions sit below the
+full application image. The final exported schedule contains 28 assignments,
+three pins and Iris in Monday's AM Lead position.
+
+No language model was configured for this walkthrough. The tool checks used
+the actual Hermes registry, not a model or a mock host. Natural-language chat,
+remote gateway switching, and switching scopes while requests are in flight
+remain unobserved in the real host. Controlled asynchronous scope races are
+covered by the React and SDK-adapter suites. Windows and Hermes versions newer
+than v0.22.7 have not been tested. These limits also appear in the submission
+draft; the native demo does not imply chat was tested.
+
 ## Remaining release gates
 
-Chrome preview observations do not establish native Electron behavior.
-[Issue #5](https://github.com/Whyme-Labs/shift-repair/issues/5) still tracks
-the actual host checks:
-
-- Install and enable both Python and Desktop components in a clean profile.
-- Inspect dialogs, responsive layout, light and dark themes.
-- Confirm chat edits update the visible board and board edits appear in chat.
-- Switch profiles and gateway connections during in-flight operations.
-- Export through the real folder picker and inspect the saved CSV.
-- Capture actual screenshots and a working demo under 90 seconds.
+[Issue #5](https://github.com/Whyme-Labs/shift-repair/issues/5) retains the
+model-backed and live connection lifecycle checks described above.
 
 [Issue #6](https://github.com/Whyme-Labs/shift-repair/issues/6) tracks the public
 repository, selected release commit, catalog PR, X demonstration and competition
 form. The repository is currently private. Submission drafts retain explicit
-placeholders for artifacts that do not yet exist.
+placeholders for artifacts that do not yet exist. Final admission must be run
+against the selected release commit before opening the catalog PR.

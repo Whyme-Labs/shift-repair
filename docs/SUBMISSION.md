@@ -157,29 +157,27 @@ mock context is useful but does not replace it. Re-run against a clean checkout
 of the commit that will be pinned, with the compiled Desktop bundle present.
 Read caution findings even if validation passes.
 
-## Release evidence to collect
+## Release evidence status
 
-- [ ] All Python tests pass on the development runtime.
-- [ ] Core solver and integration tests pass on Hermes's supported Python and pinned dependencies.
-- [ ] The actual `hermes plugins doctor --ci` command passes.
-- [ ] The actual `hermes plugins validate --install-deps` command passes.
-- [ ] Install the packaged plugin through Hermes in a clean development profile.
-- [ ] Enable both native Desktop and Python components.
-- [ ] Verify a chat tool edit appears in the native board and a board edit appears in chat.
-- [ ] Verify a stale agent revision cannot overwrite a human edit.
-- [ ] Verify a candidate is independently valid before Apply becomes available.
-- [ ] Verify contradictory pins return an honest infeasibility explanation.
-- [ ] Verify reload preserves the board, undo history and profile isolation.
-- [ ] Export a valid schedule and reimport the full project CSV.
-- [ ] Record the release build working, with no mock responses or hidden manual edits.
-- [ ] Add screenshots and a concise demo link to the public repository.
-- [ ] Complete public repository, maintainer, exact SHA and real media fields.
-- [ ] Open the catalog PR, then publish the X video and submit both actual links.
+- [x] All 73 Python tests and 20 subtests pass on the development runtime.
+- [x] Supported Hermes runtime and dependency tests are recorded.
+- [x] Real Hermes doctor and all 16 catalog checks pass for the native-tested implementation, including dependency installation.
+- [x] Enable both Python and native Desktop components in a dedicated development profile.
+- [x] Registered Hermes tools and the native board share edits in both directions.
+- [x] A stale registered-tool edit cannot overwrite a newer board.
+- [x] Independent candidate validation and contradictory-pin behavior pass automated checks.
+- [x] Observe native repair, Apply, availability conflict and explicit qualified cover.
+- [x] Verify persistence, undo behavior and separate native profile data.
+- [x] Export through the real folder picker and reimport a full project CSV.
+- [x] Commit real native screenshots and a 60-second recording with fictional data.
+- [ ] Exercise model-backed chat; it is not claimed in the native UI demo.
+- [ ] Make the reviewed repository publicly cloneable.
+- [ ] Select the final catalog SHA and validate that exact tree.
+- [ ] Open the catalog PR, publish the X video and submit both actual links.
 
-Keep output logs with the release record. Automated checks already run during
-development should be described with their exact environment and result in the
-project's verification report. The boxes above are release gates, so a fresh
-release commit needs a fresh check even when a previous working tree passed.
+Keep output logs with the release record. Final admission must target the exact
+selected catalog commit. Model-backed chat is a separate unverified path; the
+existing demo is explicitly native UI.
 
 Runtime smoke evidence is in `submission/verification/runtime-smoke.json`.
 It records a real Hermes `PluginManager` and gateway router mount, including
@@ -206,8 +204,9 @@ The exact reports are `submission/verification/hermes-doctor.json`,
 `checked-source.json` records the runtime and build input fingerprints. Three
 files received an end-of-file blank-line cleanup after the checked snapshot;
 their remaining bytes match, and the other checked files match byte for byte.
-These results support this development milestone. They do not replace the
-pending native Desktop session, recording or release-commit validation.
+These results support the initial development milestone. The native section
+below records the later Desktop session; final admission still targets the
+selected catalog commit.
 
 ### Installable MVP checks completed on 6 November
 
@@ -226,8 +225,25 @@ The SDK projection matches 36 public source anchors in Hermes v0.22.7.
 Current reports and exact source fingerprints are in
 `submission/verification/installable/`; `docs/VERIFICATION.md` explains their
 scope and maps the checked source to its GitHub implementation commit. The
-original reports above remain historical. Actual Desktop rendering, file-picker
-operation, media and final public-release validation are still pending.
+original reports above remain historical.
+
+### Native Mac checks completed on 8 November
+
+Hermes v0.22.7's real Electron application loaded commit
+`3c27bb35693c9fca11fd769a2791643f747d0648` in an isolated macOS development home.
+The doctor and all 16 catalog checks passed with successful dependency
+installation and zero warnings. Native repair, Apply, infeasibility, explicit
+cover, real folder-picker export, full-project import, themes, dialogs and
+separate profiles were observed. The actual registered Hermes tools and the
+native board shared edits in both directions and rejected a stale edit.
+
+The [60-second demo](../submission/media/shiftrepair-native-demo.mp4) records the
+real backend and fictional data. [Native evidence](../submission/verification/macos-native-20261108/report.json)
+and [verification limits](VERIFICATION.md#native-mac-walkthrough-on-8-november)
+distinguish observed behavior from model-backed chat and live connection races,
+which have not been exercised. No model-backed chat claim should accompany the
+video. Public access, exact final admission, the catalog PR, X post and form
+remain separate steps.
 
 ## Disclosure for README and PR
 
@@ -254,7 +270,8 @@ preview runs a local HTTP server when explicitly launched.
 
 - `submission/catalog-entry.yaml.in` is intentionally invalid until real release values are supplied.
 - `submission/catalog-pr.md` is a draft PR body with explicit evidence placeholders.
-- `submission/demo-script.md` is a recording plan, not a recorded demonstration.
+- `submission/demo-script.md` describes the completed recording and its edits.
+- `submission/media/` contains the real 60-second native demo and screenshots.
 - `submission/social-post.txt` is an unsent draft.
 - `submission/form-notes.md` tracks the missing public links and form verification.
 
