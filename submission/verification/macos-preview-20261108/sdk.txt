@@ -1,0 +1,5 @@
+
+> shiftrepair-desktop@0.1.0 check:sdk
+> node scripts/sdk-contract.mjs --source=<workspace>/hermes-agent
+
+Verified 36 public SDK contract anchors and the exact generated declaration projection against <workspace>/hermes-agent.

@@ -1,0 +1,71 @@
+
+> shiftrepair-desktop@0.1.0 test:native
+> tsc -p tsconfig.native-tests.json && node build.mjs --native-tests && node --test test/*.native.mjs
+
+
+  plugin.js  91.3kb
+
+⚡ Done in 6ms
+
+  .test-build/native-host.mjs  3.2kb
+
+⚡ Done in 2ms
+Native bundle uses only public SDK and React imports: @hermes/plugin-sdk, react, react/jsx-runtime
+TAP version 13
+# Subtest: the actual compiled entry imports only the public SDK and React, with no runtime loader escapes
+ok 1 - the actual compiled entry imports only the public SDK and React, with no runtime loader escapes
+  ---
+  duration_ms: 48.002458
+  type: 'test'
+  ...
+# Subtest: the native adapter forwards the supported REST signature and decodes wrapped transport errors
+ok 2 - the native adapter forwards the supported REST signature and decodes wrapped transport errors
+  ---
+  duration_ms: 1.51075
+  type: 'test'
+  ...
+# Subtest: folder cancellation is the supported null result and never writes or reports saved
+ok 3 - folder cancellation is the supported null result and never writes or reports saved
+  ---
+  duration_ms: 1.445333
+  type: 'test'
+  ...
+# Subtest: file writes use the opaque grant ID, safe relative names and exclusive creation
+ok 4 - file writes use the opaque grant ID, safe relative names and exclusive creation
+  ---
+  duration_ms: 1.136667
+  type: 'test'
+  ...
+# Subtest: unavailable or refused file operations remain errors rather than successful exports
+ok 5 - unavailable or refused file operations remain errors rather than successful exports
+  ---
+  duration_ms: 1.220292
+  type: 'test'
+  ...
+# Subtest: switching connections or disabling during a folder picker cancels the later write
+ok 6 - switching connections or disabling during a folder picker cancels the later write
+  ---
+  duration_ms: 0.719
+  type: 'test'
+  ...
+# Subtest: tracked event listeners and pollers retire on unmount and plugin disable
+ok 7 - tracked event listeners and pollers retire on unmount and plugin disable
+  ---
+  duration_ms: 82.453708
+  type: 'test'
+  ...
+# Subtest: the compiled native view resets on same-profile activation and rejects late data
+ok 8 - the compiled native view resets on same-profile activation and rejects late data
+  ---
+  duration_ms: 52.029125
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 827.133084

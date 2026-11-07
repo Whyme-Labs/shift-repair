@@ -1,6 +1,6 @@
 # Submission checklist
 
-Status date: 6 November 2026. This is a working entry, not a submitted entry.
+Status date: 8 November 2026. This is a working entry, not a submitted entry.
 
 ## What the competition asks for
 
@@ -20,10 +20,13 @@ It says maintainers start the catalog checks and review entries every few days.
 It names usefulness, reliability, polish and creativity as judging criteria,
 with a preference for functionality beyond a prompt or skill.
 
-The public Typeform page and its public form API were inaccessible during this
-review. Required form fields beyond the two announced links, eligibility,
-team-size rules, licensing terms, and treatment of prior work remain
-**unverified**. No form has been submitted and no social post has been sent.
+The live Typeform was inspected in Chrome on 8 November. It has six questions;
+the first four require the plugin title, description, email address and Discord
+username. The title and description are prepared, while the contact fields
+remain empty. The final two questions, consent text, eligibility, team-size
+rules, licensing terms and treatment of prior work remain **unverified**.
+No form has been submitted and no social post has been sent. See
+`submission/form-notes.md` for the current form observations.
 
 ## Why this entry uses a plugin
 

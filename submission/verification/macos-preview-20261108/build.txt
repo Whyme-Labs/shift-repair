@@ -1,0 +1,13 @@
+
+> shiftrepair-desktop@0.1.0 build
+> tsc --noEmit && node build.mjs
+
+
+  plugin.js  91.3kb
+
+⚡ Done in 12ms
+
+  ../preview/app.js  254.3kb
+
+⚡ Done in 24ms
+Native bundle uses only public SDK and React imports: @hermes/plugin-sdk, react, react/jsx-runtime

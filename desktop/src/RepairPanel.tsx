@@ -25,7 +25,7 @@ export function RepairPanel({ board, busy, apply, discard, addPerson, solve }: {
         {isValidResult(result) ? <button type="button" className="sr-button sr-button-primary sr-button-wide" disabled={!!busy || !canApply(board)} onClick={apply}><Icon name="check" />{busy === "Applying repair" ? "Applying repair…" : result.changes.length ? `Apply ${result.changes.length} ${result.changes.length === 1 ? "change" : "changes"}` : "Confirm current schedule"}</button> : result.status === "INFEASIBLE" ? <button type="button" className="sr-button sr-button-primary sr-button-wide" disabled={!!busy || roster.people.length >= 32} onClick={addPerson}><Icon name="plus" />Add qualified cover</button> : <button type="button" className="sr-button sr-button-primary sr-button-wide" disabled={!!busy} onClick={solve}>Try solving again</button>}
         <button type="button" className="sr-button sr-button-quiet sr-button-wide" disabled={!!busy} onClick={discard}>Discard proposal</button>
       </div>
-      <p className="sr-caption">Proposal for revision {candidate.base_revision}. Applying creates a new revision you can undo.</p>
+      <p className="sr-caption">Based on revision {candidate.base_revision}. The current schedule is unchanged.</p>
     </> : <>
       <div className="sr-panel-illustration" aria-hidden="true"><span /><span /><span className="sr-tile-active"><Icon name="repair" width="25" height="25" /></span><span /></div>
       <h2 id="sr-repair-title">Keep the week intact</h2>

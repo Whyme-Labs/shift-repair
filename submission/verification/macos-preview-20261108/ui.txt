@@ -1,0 +1,97 @@
+
+> shiftrepair-desktop@0.1.0 test:ui
+> node build.mjs --components && node --test test/*.integration.mjs
+
+
+  .test-build/App.mjs  86.0kb
+  .test-build/api.mjs   3.6kb
+
+⚡ Done in 5ms
+TAP version 13
+# Subtest: real backend flow loads the example, repairs two positions, applies, exports and undoes
+ok 1 - real backend flow loads the example, repairs two positions, applies, exports and undoes
+  ---
+  duration_ms: 1056.606042
+  type: 'test'
+  ...
+# Subtest: an infeasible real roster cannot be applied and the cover form resolves it
+ok 2 - an infeasible real roster cannot be applied and the cover form resolves it
+  ---
+  duration_ms: 208.036542
+  type: 'test'
+  ...
+# Subtest: an old proposal is rejected after an external edit and the refreshed version is rendered
+ok 3 - an old proposal is rejected after an external edit and the refreshed version is rendered
+  ---
+  duration_ms: 146.262291
+  type: 'test'
+  ...
+# Subtest: delayed reads from an old connection cannot replace the current profile view
+ok 4 - delayed reads from an old connection cannot replace the current profile view
+  ---
+  duration_ms: 3028.380167
+  type: 'test'
+  ...
+# Subtest: Undo follows the real restore chain after its audit history has multiple entries
+ok 5 - Undo follows the real restore chain after its audit history has multiple entries
+  ---
+  duration_ms: 79.081583
+  type: 'test'
+  ...
+# Subtest: slow reads are coalesced so polling cannot starve the first response
+ok 6 - slow reads are coalesced so polling cannot starve the first response
+  ---
+  duration_ms: 26.085667
+  type: 'test'
+  ...
+# Subtest: failed writes keep all mutation controls locked until their recovery read completes
+ok 7 - failed writes keep all mutation controls locked until their recovery read completes
+  ---
+  duration_ms: 40.414791
+  type: 'test'
+  ...
+# Subtest: failed recovery reads do not claim a fresh board and block writes until a manual refresh
+ok 8 - failed recovery reads do not claim a fresh board and block writes until a manual refresh
+  ---
+  duration_ms: 56.818125
+  type: 'test'
+  ...
+# Subtest: late mutation errors from a previous scope cannot appear on the new board
+ok 9 - late mutation errors from a previous scope cannot appear on the new board
+  ---
+  duration_ms: 50.575542
+  type: 'test'
+  ...
+# Subtest: rapid export clicks share one explicit operation and block repair controls until it completes
+ok 10 - rapid export clicks share one explicit operation and block repair controls until it completes
+  ---
+  duration_ms: 37.386917
+  type: 'test'
+  ...
+# Subtest: late file reads cannot overwrite a later selection or pasted CSV
+ok 11 - late file reads cannot overwrite a later selection or pasted CSV
+  ---
+  duration_ms: 78.150958
+  type: 'test'
+  ...
+# Subtest: keyboard tabs retain valid panel relationships and move focus
+ok 12 - keyboard tabs retain valid panel relationships and move focus
+  ---
+  duration_ms: 68.692042
+  type: 'test'
+  ...
+# Subtest: an unknown board after a connection failure never offers an accidental reset
+ok 13 - an unknown board after a connection failure never offers an accidental reset
+  ---
+  duration_ms: 10.5645
+  type: 'test'
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5496.481833

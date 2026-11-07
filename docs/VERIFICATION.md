@@ -135,12 +135,45 @@ historical working-tree comparisons as comparisons with today's code.
 Use the `installable/` reports for this milestone. Re-run admission and the
 release check on the exact final public commit chosen for the catalog entry.
 
+## Chrome walkthrough on 8 November
+
+The standalone preview now has an observed walkthrough in Chrome on macOS.
+The real backend loaded the fictional week, saved Asha's Monday absence,
+proved a two-assignment repair, kept the baseline unchanged until Apply, and
+exported a CSV containing all 28 assignments. Removing both Asha and Chen's
+Monday availability produced the two-lead shortage. Explicitly adding one
+qualified Monday relief worker allowed a proven one-assignment repair.
+Restarting the backend preserved the accepted board, and repeated Undo
+restored the earlier shortage state.
+
+The first fresh native-library import was slow enough to exceed the preview's
+request timeout. Refresh recovered the completed proposal. A separate import
+probe and a native process sample located the wait in the OR-Tools library
+loader; a subsequent import took 0.331 seconds. No security setting or library
+signature was changed.
+
+A fresh installed-package check reproduced that startup delay. The release
+check now imports the solver under its bounded startup check before the HTTP
+workflow and records the duration. The successful worktree check measured
+144.253 seconds for that import, then passed the two-change repair, baseline
+preservation, Apply validation, both CSV exports and cross-process persistence.
+This check used Python 3.12.11 and OR-Tools 9.15.6755. It is development evidence,
+not validation of the final catalog commit.
+
+The walkthrough also corrected singular/plural wording in the shortage
+explanation and removed Apply instructions from the shared result footer.
+The final footer reports the checked revision and unchanged current schedule.
+
+The [Mac preview evidence](../submission/verification/macos-preview-20261108/report.json)
+records source fingerprints, local check counts and the observed workflow. Its
+directory includes the rendered preview conflict, accepted synthetic schedule
+CSV and check logs with absolute workspace paths redacted.
+
 ## Remaining release gates
 
-The connected browser was unavailable, and the cloud browser could not reach
-the workspace preview. No browser screenshot, layout approval or interactive
-Electron walkthrough is claimed. [Issue #5](https://github.com/Whyme-Labs/shift-repair/issues/5)
-tracks the actual host checks:
+Chrome preview observations do not establish native Electron behavior.
+[Issue #5](https://github.com/Whyme-Labs/shift-repair/issues/5) still tracks
+the actual host checks:
 
 - Install and enable both Python and Desktop components in a clean profile.
 - Inspect dialogs, responsive layout, light and dark themes.

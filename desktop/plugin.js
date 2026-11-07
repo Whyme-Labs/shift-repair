@@ -473,9 +473,9 @@ function RepairPanel({ board, busy, apply, discard, addPerson, solve }) {
         /* @__PURE__ */ jsx5("button", { type: "button", className: "sr-button sr-button-quiet sr-button-wide", disabled: !!busy, onClick: discard, children: "Discard proposal" })
       ] }),
       /* @__PURE__ */ jsxs5("p", { className: "sr-caption", children: [
-        "Proposal for revision ",
+        "Based on revision ",
         candidate.base_revision,
-        ". Applying creates a new revision you can undo."
+        ". The current schedule is unchanged."
       ] })
     ] }) : /* @__PURE__ */ jsxs5(Fragment3, { children: [
       /* @__PURE__ */ jsxs5("div", { className: "sr-panel-illustration", "aria-hidden": "true", children: [

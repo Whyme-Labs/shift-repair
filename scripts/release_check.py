@@ -295,7 +295,10 @@ def installed_smoke(
                 executable,
                 "-c",
                 (
-                    "import importlib.metadata as m,json,platform; print(json.dumps({'python':platform.python_version(),"
+                    "import importlib.metadata as m,json,platform,time; "
+                    "started=time.monotonic(); from ortools.sat.python import cp_model; "
+                    "print(json.dumps({'python':platform.python_version(),"
+                    "'solver_import_seconds':time.monotonic()-started,"
                     "'packages':{name:m.version(name) for name in ['hermes-shiftrepair','ortools','pydantic','fastapi','uvicorn']}}))"
                 ),
             ],
