@@ -7,7 +7,9 @@ repair when it is ready.
 This repository contains a working MVP: a constraint solver,
 independent result checker, durable revision store, ten Hermes agent tools,
 native Desktop entry point, and a standalone preview using the same backend.
-It is not yet a submitted marketplace entry. The native Mac walkthrough,
+The hackathon form confirmed receipt on 8 November 2026. The
+[catalog PR](https://github.com/NousResearch/hermes-agent/pull/150943) is open
+for review. The native Mac walkthrough,
 registered Hermes tools and catalog admission checks have passed. See
 [verification](docs/VERIFICATION.md) for the evidence and remaining limits.
 
@@ -159,12 +161,19 @@ commands, collect telemetry or update plugin code. The preview starts a local
 HTTP server only when explicitly launched. Native CSV export uses the SDK's
 user-selected folder permission.
 
-## Submission preparation
+## Submission
 
-The `submission/` directory contains the 60-second native recording, screenshots,
-verification reports, catalog template, PR draft, social post draft and form
-checklist. Public repository access, the final catalog PR, the X post and the
-competition form remain pending. No competition submission is claimed.
+The public release is pinned at `da929bb29704d5df558874bfaa0128b01702228a`.
+The [catalog PR](https://github.com/NousResearch/hermes-agent/pull/150943) is
+open, the [60-second X demo](https://x.com/wms2537/status/2119229875643121842)
+is published with the organizer tag, and the hackathon form displayed
+**Submission Received** on 8 November 2026 at 08:48 Malaysia time.
+
+[Receipt](submission/receipt.json) · [Confirmation screenshot](submission/media/submission-received.png)
+
+Catalog approval and a competition award have not been granted. Historical
+preparation templates remain in `submission/`; the receipt records what was
+actually submitted. Contact details are omitted from the public evidence.
 
 License: MIT. OR-Tools and React retain their own licenses. Existing scheduling
 optimization is established prior work; this project's contribution is the

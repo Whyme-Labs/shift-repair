@@ -1,39 +1,29 @@
-# Competition form notes
+# Competition form receipt
 
-Form: https://form.typeform.com/to/FwJLvOln
+The [Hermes Agent Plugin Hackathon form](https://form.typeform.com/to/FwJLvOln)
+displayed **Submission Received** on 8 November 2026 at 08:48 Malaysia time.
+The confirmation says the organizer will review the project.
 
-No submission has been made. The live form was opened in Chrome on 8 November
-2026. It identifies itself as the Hermes Agent Plugin Hackathon Submission
-Form and contains six questions. The first four required fields are:
+All six required fields were completed: Plugin Title, Plugin Description,
+Email Address, Discord Username, X Demo Post Link and GitHub Link to your
+Hermes Plugin Pull Request. The flow also included an instruction to open the
+catalog PR. No additional consent checkbox or eligibility terms were shown.
+The user's contact details are deliberately omitted from the public record.
 
-1. Plugin Title
-2. Plugin Description
-3. Email Address
-4. Discord Username
-
-The title and project description have been prepared in the browser. Contact
-fields remain empty pending the user's details. The last two questions and any
-final consent text still need inspection. No eligibility, team-size or prior-work
-rules were shown on the welcome screen or the inspected questions.
-
-The announcement explicitly requires these two links:
-
-| Field from announcement | Actual value |
+| Submitted link | Actual value |
 | --- | --- |
-| Open catalog pull request | Not created |
-| X demo post tagging @NousResearch | Not published |
+| Catalog PR | https://github.com/NousResearch/hermes-agent/pull/150943 |
+| X demo, tagged @NousResearch | https://x.com/wms2537/status/2119229875643121842 |
 
-Use the user's supplied email address and Discord username. Keep personal
-contact details out of this public release checklist. Prepare the public
-repository and contributor identity in case the remaining questions ask for
-them. Do not invent personal details or consent to additional terms on the
-user's behalf.
+The post was published through the user's signed-in Safari account @wms2537.
+It contains the real 60.08-second native UI video and fictional roster data.
+The form was submitted in the user's Chrome. Both published links were checked
+before submission.
 
-Before sending, confirm the deadline, year and time zone shown by the organizer.
-The announcement's 5 PM EST on 11 November converts to 22:00 UTC that day and
-06:00 UTC+8 on 12 November.
+[Machine-readable receipt](receipt.json) · [Confirmation screenshot](media/submission-received.png)
 
-The announcement permits form submission once the catalog PR is open. A merged
-PR is not stated as a prerequisite to sending the form. Maintainers must start
-catalog checks and review the entry, so publish a complete reviewable release
-early enough to address feedback.
+The end screen states November 11 at 1 PM PST (November 12 at 05:00 Malaysia
+time). The original pasted announcement stated 5 PM EST, one hour later.
+Submission preceded both. The catalog PR was open, with no GitHub checks
+reported, when the receipt was verified. Receipt does not mean catalog
+acceptance or a competition award.

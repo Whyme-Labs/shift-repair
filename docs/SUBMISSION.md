@@ -1,6 +1,8 @@
 # Submission checklist
 
-Status date: 8 November 2026. This is a working entry, not a submitted entry.
+Status date: 8 November 2026. The competition form confirmed **Submission
+Received** at 08:48 Malaysia time. [Receipt](../submission/receipt.json).
+The catalog PR is open for review; no approval or award is claimed.
 
 ## What the competition asks for
 
@@ -20,13 +22,21 @@ It says maintainers start the catalog checks and review entries every few days.
 It names usefulness, reliability, polish and creativity as judging criteria,
 with a preference for functionality beyond a prompt or skill.
 
-The live Typeform was inspected in Chrome on 8 November. It has six questions;
-the first four require the plugin title, description, email address and Discord
-username. The title and description are prepared, while the contact fields
-remain empty. The final two questions, consent text, eligibility, team-size
-rules, licensing terms and treatment of prior work remain **unverified**.
-No form has been submitted and no social post has been sent. See
-`submission/form-notes.md` for the current form observations.
+The completed Typeform required six fields: plugin title, description, email,
+Discord username, X demo post link and GitHub catalog PR link. It also displayed
+an instruction to open the catalog PR. The user's contact details were entered
+privately. Both published links were submitted, and the form returned
+**Submission Received**. No additional consent checkbox or eligibility terms
+were displayed in the completed flow.
+
+- [Catalog PR #150943](https://github.com/NousResearch/hermes-agent/pull/150943)
+- [Published X demo](https://x.com/wms2537/status/2119229875643121842)
+- [Confirmation screenshot](../submission/media/submission-received.png)
+
+The receipt's end screen gives November 11 at 1 PM PST, which is November 12
+at 05:00 Malaysia time. This differs by one hour from the original pasted
+announcement above. The completed entry preceded both times. See
+[form notes](../submission/form-notes.md) for the recorded submission state.
 
 ## Why this entry uses a plugin
 
@@ -54,7 +64,7 @@ are the admission rules. The current local verification target is Hermes
 
 | Requirement | ShiftRepair preparation | Release gate |
 | --- | --- | --- |
-| Public cloneable repository | Source is tracked in `Whyme-Labs/shift-repair`, currently private | Make the approved release repository publicly cloneable before submission |
+| Public cloneable repository | Source is tracked in `Whyme-Labs/shift-repair`, now public | Public Git access and pinned media URLs verified |
 | Loadable plugin | Root Python entrypoint, manifest, native Desktop bundle and REST router | Run the real loader against the exact release tree |
 | Public Hermes surfaces only | `ctx.register_tool`, `plugin_data_dir`, `broadcast_plugin_event`, native Desktop SDK and documented router mount | Review validator warnings and native smoke test |
 | Complete capability declarations | Ten tools declared in `plugin.yaml` | Keep catalog list and actual registration identical |
@@ -171,9 +181,9 @@ Read caution findings even if validation passes.
 - [x] Export through the real folder picker and reimport a full project CSV.
 - [x] Commit real native screenshots and a 60-second recording with fictional data.
 - [ ] Exercise model-backed chat; it is not claimed in the native UI demo.
-- [ ] Make the reviewed repository publicly cloneable.
-- [ ] Select the final catalog SHA and validate that exact tree.
-- [ ] Open the catalog PR, publish the X video and submit both actual links.
+- [x] Make the reviewed repository publicly cloneable.
+- [x] Select the final catalog SHA and validate that exact tree (`da929bb29704d5df558874bfaa0128b01702228a`).
+- [x] Open the catalog PR, publish the X video and submit both actual links.
 
 Keep output logs with the release record. Final admission must target the exact
 selected catalog commit. Model-backed chat is a separate unverified path; the
@@ -243,7 +253,7 @@ and [verification limits](VERIFICATION.md#native-mac-walkthrough-on-8-november)
 distinguish observed behavior from model-backed chat and live connection races,
 which have not been exercised. No model-backed chat claim should accompany the
 video. Public access, exact final admission, the catalog PR, X post and form
-remain separate steps.
+submission are now complete; catalog review remains pending.
 
 ## Disclosure for README and PR
 
@@ -275,6 +285,6 @@ preview runs a local HTTP server when explicitly launched.
 - `submission/social-post.txt` is an unsent draft.
 - `submission/form-notes.md` tracks the missing public links and form verification.
 
-None of these drafts proves acceptance or submission. Do not replace missing
-values with plausible examples. Use the published repository, committed release
-SHA, uploaded video and opened PR that actually exist.
+The templates remain historical preparation files. The actual submitted URLs,
+release pin and confirmation are in `submission/receipt.json`. A received form
+is not catalog approval or a competition award.
