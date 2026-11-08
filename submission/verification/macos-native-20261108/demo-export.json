@@ -1,0 +1,14 @@
+{
+  "file": "shiftrepair-2026-11-09-schedule-r15-20261107204930352.csv",
+  "rows": 28,
+  "locked_assignments": 3,
+  "monday_am_lead": {
+    "date": "2026-11-09",
+    "shift": "AM",
+    "role": "lead",
+    "person_id": "iris-demo",
+    "name": "Iris (demo)",
+    "pinned": "false"
+  },
+  "sha256": "ac97746937af5400f11910c3f35dea91af7c968cf4a70003b47165139bb45d9e"
+}

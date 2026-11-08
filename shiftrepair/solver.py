@@ -199,6 +199,7 @@ def _direct_conflicts(roster: Roster) -> list[Conflict]:
             if day in person.available_days and role in person.roles and person.max_assignments > 0
         ]
         if len(eligible) < len(role_slots):
+            shortfall = len(role_slots) - len(eligible)
             names = ", ".join(person.name for person in eligible[:8]) or "none"
             if len(eligible) > 8:
                 names += f", and {len(eligible) - 8} other people"
@@ -207,9 +208,12 @@ def _direct_conflicts(roster: Roster) -> list[Conflict]:
                     code="daily_role_shortfall",
                     message=(
                         f"{day} needs {len(role_slots)} {role} assignments. "
-                        f"Only {len(eligible)} qualified, available people have positive weekly capacity: "
+                        f"Only {len(eligible)} qualified, available "
+                        f"{'person has' if len(eligible) == 1 else 'people have'} "
+                        f"positive weekly capacity: "
                         f"{names}. With at most 1 assignment per person per day, "
-                        f"at least {len(role_slots) - len(eligible)} position(s) cannot be covered."
+                        f"at least {shortfall} "
+                        f"{'position' if shortfall == 1 else 'positions'} cannot be covered."
                     ),
                     slot_ids=[slot.id for slot in role_slots],
                     person_ids=[person.id for person in eligible],

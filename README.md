@@ -7,8 +7,15 @@ repair when it is ready.
 This repository contains a working MVP: a constraint solver,
 independent result checker, durable revision store, ten Hermes agent tools,
 native Desktop entry point, and a standalone preview using the same backend.
-It is not yet a submitted marketplace entry. See [verification](docs/VERIFICATION.md)
-for completed checks and the remaining native Desktop smoke test.
+It is not yet a submitted marketplace entry. The native Mac walkthrough,
+registered Hermes tools and catalog admission checks have passed. See
+[verification](docs/VERIFICATION.md) for the evidence and remaining limits.
+
+[Watch the 60-second native Hermes demo](submission/media/shiftrepair-native-demo.mp4).
+It uses fictional staff and the real plugin backend. No model connection is
+needed for the board; model-backed chat is not demonstrated in this recording.
+
+![Two changed assignments, with the other 26 preserved, in Hermes Desktop](submission/media/native-repair.png)
 
 Development is tracked in [the release progress issue](https://github.com/Whyme-Labs/shift-repair/issues/1).
 The installable MVP includes normal package installation, a checked native SDK
@@ -154,10 +161,10 @@ user-selected folder permission.
 
 ## Submission preparation
 
-The `submission/` directory contains a catalog template, PR draft, 85-second
-recording plan, social post draft and form checklist. Release-specific fields
-remain visibly incomplete until the public repository, pinned commit and real
-demo exist. Nothing has been posted or submitted.
+The `submission/` directory contains the 60-second native recording, screenshots,
+verification reports, catalog template, PR draft, social post draft and form
+checklist. Public repository access, the final catalog PR, the X post and the
+competition form remain pending. No competition submission is claimed.
 
 License: MIT. OR-Tools and React retain their own licenses. Existing scheduling
 optimization is established prior work; this project's contribution is the

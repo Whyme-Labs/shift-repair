@@ -1,0 +1,8 @@
+{
+  "revision": 8,
+  "native_apply_observed_by_registered_tool": true,
+  "monday_am_lead": "iris-demo",
+  "validation": [],
+  "project_csv_sha256": "4039b8e03d7961f8d603e0606fb29e746062157d4b0e73840b62ab3395944161",
+  "csv_source": "Actual registered shiftrepair_export tool; saved by the test controller"
+}

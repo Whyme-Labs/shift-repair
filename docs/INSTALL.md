@@ -49,6 +49,22 @@ The `preview` extra supplies uvicorn. Core scheduling and the Hermes gateway
 adapter do not require that extra. A base install reports the missing extra
 when `serve` is requested, while its other CLI commands remain available.
 
+### First solver load on macOS
+
+A fresh macOS installation can spend longer than the browser request timeout
+loading OR-Tools' native libraries. Check that import before the first walkthrough:
+
+```bash
+.venv/bin/python -c 'from ortools.sat.python import cp_model; print("Solver ready")'
+```
+
+Let this command finish. If a solve has already timed out in the interface,
+use **Refresh** before retrying. The backend may have finished and saved the
+proposal after the browser stopped waiting. Refresh shows that result without
+applying it. A runtime sample and a subsequent fast import documented this
+first-load delay on the Mac used for the 8 November preview check. No security
+settings or library signatures were changed.
+
 ## Produce and test a clean release
 
 The release check requires Git, uv, Node and npm. It downloads the declared
@@ -88,7 +104,9 @@ The check performs the following work:
    distribution. Check the packaged browser files and both license files.
 4. Install the base wheel normally in a fresh environment. Check the module
    import comes from that environment and uvicorn remains optional. Install
-   the preview extra and check dependency consistency.
+   the preview extra and check dependency consistency. Import the native solver
+   under a separate bounded startup check and record its duration before the
+   HTTP workflow, which retains its normal request timeout.
 5. Start the installed CLI outside the source tree. Fetch the actual HTML and
    JavaScript over localhost. Load the demo, change Asha's Monday availability,
    solve the two-assignment repair, apply it, export both CSV forms and read

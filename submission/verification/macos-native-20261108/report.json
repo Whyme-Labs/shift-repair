@@ -1,0 +1,139 @@
+{
+  "observed_on": "2026-11-08",
+  "plugin_commit": "3c27bb35693c9fca11fd769a2791643f747d0648",
+  "source_sha256": "008421eca1a79beeb83eb3264f412b43bed61bcc608bef81deef9b1ee5e5d198",
+  "hermes_version": "v0.22.7",
+  "hermes_commit": "b200f5bc60e31588ba2cb60e288029c4a54ba5fa",
+  "runtime": {
+    "os": "macOS 26.2 (25C56)",
+    "architecture": "arm64",
+    "python": "3.14.9",
+    "electron": "44.9.3",
+    "ortools": "9.15.6755"
+  },
+  "host": "Actual Electron application built from the upstream tag, normal plugin activation, dedicated development home and local foreground gateway",
+  "mocking": "No mocked native workflow, solver response, folder picker or registry in this walkthrough",
+  "admission": {
+    "checks_passed": 16,
+    "warnings": 0,
+    "security": "safe",
+    "host_ready": true,
+    "dependency_installation_succeeded": true,
+    "evidence": "catalog-validation.json"
+  },
+  "native_observations": [
+    "Asha unavailable Monday: OPTIMAL 2 changes, 26 preserved, explicit Apply.",
+    "Asha and Chen unavailable Monday: INFEASIBLE, two lead positions but only Ben eligible; no Apply button.",
+    "Explicit Iris (demo), Lead, Monday, maximum one assignment: OPTIMAL 1 change and explicit Apply.",
+    "Registered tool read native revision 6, added cover at 7, rejected stale revision 6, and generated the proposal shown in the board.",
+    "Registered tool read native Apply at revision 8 with no checker violations.",
+    "Native folder picker cancellation recovered controls; a real selected directory received a 28-row CSV.",
+    "Full project CSV reimported at revision 9 with nine people and accepted assignments; malformed input did not mutate state.",
+    "Separate profile loaded its own revision 1/eight-person fixture; default restored revision 8/nine-person fixture.",
+    "Light and dark themes, Reset Escape cancellation and confirmation, Add cover, import and keyboard tab movement observed.",
+    "At 1100x820 the repair panel fit and the table scrolled horizontally."
+  ],
+  "demo": {
+    "path": "../../media/shiftrepair-native-demo.mp4",
+    "duration_seconds": 60.08,
+    "width": 1280,
+    "height": 900,
+    "codec": "H.264",
+    "audio": "silent AAC track; captions provide the narrative",
+    "fixture": "fictional Cedar team",
+    "final_revision": 15,
+    "csv_rows": 28,
+    "pinned_assignments": 3,
+    "editing": "Setup and the native folder-picker wait trimmed; no workflow state or solver output replaced."
+  },
+  "unverified": [
+    "Model-backed natural-language chat",
+    "Remote gateway switching",
+    "Actual-host profile or connection switching during in-flight requests",
+    "Windows",
+    "Hermes versions newer than v0.22.7"
+  ],
+  "publication": {
+    "repository_public": false,
+    "catalog_pr": null,
+    "x_demo_post": null,
+    "form_submitted": false
+  },
+  "artifacts": [
+    {
+      "path": "submission/media/native-baseline.png",
+      "sha256": "afe60c680f60c39728a032e336f94d498e4b5726d6874ed47fd029742e3cdaca",
+      "bytes": 600352
+    },
+    {
+      "path": "submission/media/native-conflict.png",
+      "sha256": "2608584ab8ebd876628d8ad4868af30c596c03edd939adc833d4344d638266ef",
+      "bytes": 663427
+    },
+    {
+      "path": "submission/media/native-final.png",
+      "sha256": "6eb248a795c1e3fa921b961338511bc7e8db8802e3313b8f45b56ebbb292865c",
+      "bytes": 449696
+    },
+    {
+      "path": "submission/media/native-light.png",
+      "sha256": "c8893e8cb9ddc303d795aea75d736776b6502d2f802d3ebcd5b8802f36803a7e",
+      "bytes": 524193
+    },
+    {
+      "path": "submission/media/native-repair.png",
+      "sha256": "3b0bf81f209d8eadd2e3ecd6d34b527b4ac650bc9de6d77f0d83f6ea4f467e7e",
+      "bytes": 625765
+    },
+    {
+      "path": "submission/media/shiftrepair-native-demo.mp4",
+      "sha256": "aab7e67cc67ea53d91dd07c6abfbc5327b4ceda815504611eda0409d7faf0860",
+      "bytes": 1449489
+    },
+    {
+      "path": "submission/verification/macos-native-20261108/catalog-dependencies.txt",
+      "sha256": "a4d3d5afd4d3767b761bb468676057d7880ea81f9e5c0cd11d39334a9497d1b8",
+      "bytes": 152
+    },
+    {
+      "path": "submission/verification/macos-native-20261108/catalog-validation.json",
+      "sha256": "55154004ca5f48730df978a50e38b8e036412d7ed47ce14f9786112e01ef73d2",
+      "bytes": 1973
+    },
+    {
+      "path": "submission/verification/macos-native-20261108/demo-edit.json",
+      "sha256": "66f78a975e1fd6be3a07ed15f6f07f78b9f9ab05977932d47d910bb43f5cf196",
+      "bytes": 1529
+    },
+    {
+      "path": "submission/verification/macos-native-20261108/demo-export.json",
+      "sha256": "fd3bcba1539e73d21d4f0d43f7f2b03273782f615df90d15a018ea177d7c6391",
+      "bytes": 366
+    },
+    {
+      "path": "submission/verification/macos-native-20261108/demo-schedule.csv",
+      "sha256": "ac97746937af5400f11910c3f35dea91af7c968cf4a70003b47165139bb45d9e",
+      "bytes": 1039
+    },
+    {
+      "path": "submission/verification/macos-native-20261108/hermes-doctor.txt",
+      "sha256": "068885e081c3f5ffea0f7be66aa6b16ce623ca27117066cc3914c3e12a05a289",
+      "bytes": 216
+    },
+    {
+      "path": "submission/verification/macos-native-20261108/native-apply-readback.json",
+      "sha256": "e56182ed1d9c7a829c9759926f751f2e857ac4a3532d3baa9022f010697f46a5",
+      "bytes": 308
+    },
+    {
+      "path": "submission/verification/macos-native-20261108/registered-tools.json",
+      "sha256": "b323c04710686861726998740fe77491982667a1982314183d11b61585105366",
+      "bytes": 868
+    },
+    {
+      "path": "submission/verification/macos-native-20261108/source-manifest.json",
+      "sha256": "3eef9a41d7c079a142f8574b03ed5b38b2db2183aa45349b77c881e82ed164d7",
+      "bytes": 21887
+    }
+  ]
+}

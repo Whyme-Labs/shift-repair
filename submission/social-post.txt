@@ -1,8 +1,4 @@
-DRAFT ONLY. Not posted. Attach the real working demo before publishing.
+DRAFT ONLY. Attach submission/media/shiftrepair-native-demo.mp4 before publishing.
 
-ShiftRepair for the @NousResearch Hermes plugin hackathon.
-
-One absence. A proven minimum-change repair. A native board showing every reassignment, verified constraints and explicit Apply.
-
-Demo below. Code: __REQUIRED_PUBLIC_REPOSITORY_URL__
-PR: __REQUIRED_CATALOG_PR_URL__
+ShiftRepair for the @NousResearch Hermes plugin hackathon: repair a broken staff rota, review the minimum changes, and export it. Real native UI demo: absence → 2 changes → shortage → explicit cover. Fictional data.
+https://github.com/Whyme-Labs/shift-repair
