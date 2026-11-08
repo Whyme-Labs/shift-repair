@@ -33,4 +33,5 @@ records the selected segments. The OS picker image is not published because its
 sidebar contains local machine details. Its successful file is included as
 [the fictional exported schedule](verification/macos-native-20261108/demo-schedule.csv).
 
-The X post is still pending. This local recording is not a submission receipt.
+The [X post](https://x.com/wms2537/status/2119229875643121842) is published.
+The form subsequently confirmed receipt; see [the submission record](receipt.json).

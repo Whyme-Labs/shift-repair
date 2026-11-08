@@ -4,7 +4,7 @@
 name: shiftrepair
 title: ShiftRepair
 repo: https://github.com/Whyme-Labs/shift-repair
-# This repository is currently private. A public clone must be available before submission.
+# The repository is public. Prepare a new verified pin when reusing this template.
 sha: __REQUIRED_FULL_40_CHARACTER_PLUGIN_RELEASE_COMMIT__
 description: Repair weekly staff schedules with minimum disruption, verified constraints and a shared Desktop board.
 maintainer: wms2537

@@ -1,4 +1,8 @@
-# Draft only. Complete the evidence before opening the PR.
+# Archived preparation draft
+
+The completed submission is https://github.com/NousResearch/hermes-agent/pull/150943.
+See `receipt.json` for the submitted pin and media links. Do not submit this
+historical template again.
 
 Suggested title: `Add ShiftRepair to the plugin catalog`
 
@@ -22,7 +26,7 @@ It does not claim labor-law compliance, payroll support or rest-period modeling.
 
 ## Release and evidence
 
-- Repository: https://github.com/Whyme-Labs/shift-repair, currently private and requiring public access before submission.
+- Repository: https://github.com/Whyme-Labs/shift-repair (now public).
 - Pinned plugin commit: `__REQUIRED_40_CHARACTER_COMMIT__`
 - Version: `0.1.0`
 - Minimum Hermes: `>=0.22.7`

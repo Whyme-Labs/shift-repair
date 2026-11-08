@@ -2,8 +2,8 @@
 
 Updated: 8 November 2026. Test fixtures contain fictional staff data. The
 installable MVP checks below date from 6 November; the later Mac sections record
-the preview and real Electron walkthrough. Publication remains pending. No
-remote CI run is claimed.
+the preview and real Electron walkthrough. Publication and form receipt are
+recorded below. No remote CI pass is claimed.
 
 ## Checked source
 
@@ -224,8 +224,20 @@ draft; the native demo does not imply chat was tested.
 [Issue #5](https://github.com/Whyme-Labs/shift-repair/issues/5) retains the
 model-backed and live connection lifecycle checks described above.
 
-[Issue #6](https://github.com/Whyme-Labs/shift-repair/issues/6) tracks the public
-repository, selected release commit, catalog PR, X demonstration and competition
-form. The repository is currently private. Submission drafts retain explicit
-placeholders for artifacts that do not yet exist. Final admission must be run
-against the selected release commit before opening the catalog PR.
+The selected release commit is `da929bb29704d5df558874bfaa0128b01702228a`.
+It passed the actual doctor, all 16 catalog admission checks with successful
+dependency installation and zero warnings, and a fresh packaged install check.
+Its runtime/build/test inputs match the native-tested commit. The clean wheel
+check measured a 140.707-second cold solver import, then passed repair, Apply,
+both CSV exports and cross-process persistence with no checker violations.
+
+The repository is public. [Catalog PR #150943](https://github.com/NousResearch/hermes-agent/pull/150943)
+pins that release; the current upstream entry validator and all 15 local
+`scripts/check` checks passed. The catalog PR remains open with no GitHub checks
+reported at submission time. The [X demo](https://x.com/wms2537/status/2119229875643121842)
+was published and its 60.08-second video playback verified. The competition
+form displayed **Submission Received** on 8 November at 08:48 Malaysia time.
+[Receipt and public evidence](../submission/receipt.json) record this state.
+
+These publication updates do not alter the pinned runtime. Catalog acceptance,
+competition judging and the unverified runtime paths above remain separate.

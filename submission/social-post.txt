@@ -1,4 +1,5 @@
-DRAFT ONLY. Attach submission/media/shiftrepair-native-demo.mp4 before publishing.
+PUBLISHED: https://x.com/wms2537/status/2119229875643121842
+The 60.08-second native demo is attached to that post.
 
 ShiftRepair for the @NousResearch Hermes plugin hackathon: repair a broken staff rota, review the minimum changes, and export it. Real native UI demo: absence → 2 changes → shortage → explicit cover. Fictional data.
 https://github.com/Whyme-Labs/shift-repair

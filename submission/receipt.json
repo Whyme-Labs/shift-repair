@@ -1,0 +1,33 @@
+{
+  "project": "ShiftRepair",
+  "form_url": "https://form.typeform.com/to/FwJLvOln",
+  "confirmation": "Submission Received",
+  "confirmation_observed_at_utc": "2026-11-08T00:48:28Z",
+  "confirmation_observed_at_malaysia": "2026-11-08T08:48:28+08:00",
+  "repository": "https://github.com/Whyme-Labs/shift-repair",
+  "release_commit": "da929bb29704d5df558874bfaa0128b01702228a",
+  "catalog_pr": "https://github.com/NousResearch/hermes-agent/pull/150943",
+  "catalog_pr_state": "open, not merged; no checks reported at receipt verification",
+  "x_post": "https://x.com/wms2537/status/2119229875643121842",
+  "x_account": "wms2537",
+  "x_post_created_at_utc": "2026-11-08T00:45:50Z",
+  "demo_seconds": 60.08,
+  "organizer_tag": "@NousResearch",
+  "published_playback_verified": true,
+  "submission_browser": "user Chrome",
+  "x_post_browser": "user Safari",
+  "contact_fields": "User-supplied email and Discord username submitted; omitted from this receipt.",
+  "receipt_end_screen": "The organizer confirmed receipt and said the team will review the entry; winners will be announced on the Nous Research X account after the hackathon.",
+  "end_time_shown_on_receipt": "November 11th at 1pm PST",
+  "award_or_acceptance_claimed": false,
+  "evidence": [
+    {
+      "file": "media/submission-received.png",
+      "sha256": "f1b9994eb59e4d0b827b41ae0f193dec13ca668c9ae1ebecd33fcbebb1ccd73d"
+    },
+    {
+      "file": "media/x-post-live.png",
+      "sha256": "65c9270b1a30d02d31285846c6e11ffc7485c7bcaf2c97eed5ce9405648a8fbd"
+    }
+  ]
+}
